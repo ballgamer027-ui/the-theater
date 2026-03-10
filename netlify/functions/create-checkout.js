@@ -52,6 +52,7 @@ exports.handler = async (event) => {
             payment_method_types: ['card', 'promptpay'],
             mode: 'payment',
             customer_email: email,
+            customer_creation: 'always',
             line_items: [
                 {
                     price: priceId,
