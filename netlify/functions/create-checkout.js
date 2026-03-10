@@ -1,4 +1,4 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')((process.env.STRIPE_SECRET_KEY || '').trim());
 
 // Stripe Price IDs — configured in Stripe Dashboard
 // Set these as environment variables in Netlify
@@ -40,7 +40,10 @@ exports.handler = async (event) => {
             return {
                 statusCode: 400,
                 headers,
-                body: JSON.stringify({ error: `ไม่พบ Price ID สำหรับ ${projectId} (${tier})` })
+                body: JSON.stringify({
+                    error: `ไม่พบ Price ID สำหรับ ${projectId} (${tier})`,
+                    debugKeys: Object.keys(PRICE_MAP)
+                })
             };
         }
 
