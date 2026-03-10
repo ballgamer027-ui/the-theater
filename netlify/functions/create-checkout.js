@@ -58,6 +58,7 @@ exports.handler = async (event) => {
                     quantity: 1
                 }
             ],
+            allow_promotion_codes: true,
             metadata: {
                 projectId,
                 tier,
