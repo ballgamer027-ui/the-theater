@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กำลังเข้าสู่ระบบ... — The Architect's Theater</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎭</text></svg>">
+</head>
+
+<body>
+    <div class="bg-grid"></div>
+    <div
+        style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center;padding:2rem;">
+        <div style="font-size:3rem;margin-bottom:1.5rem;" id="status-icon">⏳</div>
+        <h1 style="font-family:Outfit,sans-serif;font-size:1.5rem;margin-bottom:0.5rem;" id="status-title">
+            กำลังเข้าสู่ระบบ...</h1>
+        <p style="color:var(--text-secondary);margin-bottom:2rem;" id="status-desc">กรุณารอสักครู่</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://hecymikneizkaxtekjlk.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlY3ltaWtuZWl6a2F4dGVramxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNzEwODksImV4cCI6MjA4ODc0NzA4OX0.dG8eK1O-eNDAPX6P0KEtEyZM9AS4WomjhYsKlL_9Ry4';
+
+        async function handleCallback() {
+            try {
+                const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+                // Supabase auto-handles the hash fragment exchange
+                const { data: { session }, error } = await sb.auth.getSession();
+
+                if (error) throw error;
+
+                if (session) {
+                    document.getElementById('status-icon').textContent = '✅';
+                    document.getElementById('status-title').textContent = 'เข้าสู่ระบบสำเร็จ!';
+                    document.getElementById('status-desc').textContent = 'กำลังพาไปหน้า Lobby...';
+
+                    setTimeout(() => {
+                        // Check if there's a returnTo URL in storage
+                        const returnTo = localStorage.getItem('theater_return_to');
+                        if (returnTo) {
+                            localStorage.removeItem('theater_return_to');
+                            window.location.href = returnTo;
+                        } else {
+                            window.location.href = '/index.html';
+                        }
+                    }, 1500);
+                } else {
+                    document.getElementById('status-icon').textContent = '❌';
+                    document.getElementById('status-title').textContent = 'เข้าสู่ระบบไม่สำเร็จ';
+                    document.getElementById('status-desc').innerHTML = '<a href="/index.html" style="color:var(--gold);">กลับหน้า Lobby</a>';
+                }
+            } catch (err) {
+                console.error('Auth callback error:', err);
+                document.getElementById('status-icon').textContent = '❌';
+                document.getElementById('status-title').textContent = 'เกิดข้อผิดพลาด';
+                document.getElementById('status-desc').innerHTML = err.message + '<br><a href="/index.html" style="color:var(--gold);">กลับหน้า Lobby</a>';
+            }
+        }
+
+        handleCallback();
+    </script>
+</body>
+
+</html>

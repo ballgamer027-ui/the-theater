@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ซื้อสำเร็จ! — The Architect's Theater</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎭</text></svg>">
+</head>
+
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow-orb gold"></div>
+
+    <div
+        style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center;padding:2rem;">
+        <div style="font-size:4rem;margin-bottom:1.5rem;">🎉</div>
+        <h1 style="font-family:Outfit,sans-serif;font-size:2rem;margin-bottom:0.5rem;color:var(--emerald);">ซื้อสำเร็จ!
+        </h1>
+        <p style="color:var(--text-secondary);margin-bottom:0.5rem;font-size:1.1rem;" id="success-message">กำลังปลดล็อก
+            modules ของคุณ...</p>
+        <p style="color:var(--text-muted);margin-bottom:2rem;font-size:0.85rem;" id="success-detail"></p>
+
+        <div style="display:flex;gap:1rem;">
+            <a id="btn-theater" href="#" class="btn btn-gold">▶ เข้าโรงฉายเลย</a>
+            <a href="index.html" class="btn btn-ghost">← กลับ Lobby</a>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const projectId = params.get('project');
+        const tier = params.get('tier');
+
+        const TIER_NAMES = {
+            manual: '📖 Manual Pack',
+            workflow: '⚙️ Workflow Pack',
+            vip: '👑 VIP Run-With-You'
+        };
+
+        if (projectId && tier) {
+            document.getElementById('success-message').textContent =
+                `${TIER_NAMES[tier] || tier} ปลดล็อกเรียบร้อยแล้ว!`;
+            document.getElementById('success-detail').textContent =
+                'ระบบบันทึกสิทธิ์ของคุณแล้ว — เข้าชมเนื้อหาได้ทันที';
+            document.getElementById('btn-theater').href =
+                `theater.html?project=${projectId}`;
+        } else {
+            document.getElementById('success-message').textContent = 'การชำระเงินเสร็จสมบูรณ์';
+            document.getElementById('btn-theater').href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

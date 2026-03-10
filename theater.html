@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Architect's Theater — Stage</title>
+    <meta name="description" content="โรงฉาย — ดู Blueprint, Tech Specs, และ Copy Production Scripts ได้ทันที">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎭</text></svg>">
+</head>
+
+<body>
+    <!-- Background Effects -->
+    <div class="bg-grid"></div>
+
+    <!-- Top Bar -->
+    <nav class="topbar" id="topbar"></nav>
+
+    <!-- Theater Layout -->
+    <main class="theater-layout">
+        <!-- The Stage (Top Left — Video) -->
+        <section class="the-stage" id="the-stage"></section>
+
+        <!-- The Map (Bottom Left — Module Navigator) -->
+        <section class="the-map" id="the-map"></section>
+
+        <!-- The Engine (Right — Scripts & Specs) -->
+        <aside class="the-engine">
+            <div id="engine-header" class="engine-header"></div>
+            <div id="engine-body" class="engine-body"></div>
+            <div id="engine-footer" class="engine-footer"></div>
+        </aside>
+    </main>
+
+    <!-- Pricing Panel (Per-Project) -->
+    <section class="pricing-panel" id="pricing-panel"></section>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        (async () => {
+            initSupabase();
+            await loadUserState();
+            setupAuthListener();
+            initTheater();
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+node_modules/
+.env
+.netlify/
+n8n-workflows/
+setup.sql
+*.log
+.DS_Store

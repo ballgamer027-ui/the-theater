@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Architect's Theater — Lobby</title>
+  <meta name="description"
+    content="The Architect's Theater — Premium Blueprint Portal สำหรับ System Architects ที่ต้องการเข้าถึง Production-Grade Scripts">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎭</text></svg>">
+</head>
+
+<body>
+  <!-- Background Effects -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow-orb gold"></div>
+  <div class="bg-glow-orb purple"></div>
+
+  <!-- Top Bar -->
+  <nav class="topbar" id="topbar"></nav>
+
+  <!-- Hero Spotlight -->
+  <section class="hero-spotlight" id="hero-spotlight"></section>
+
+  <!-- Project Grid -->
+  <section id="projects">
+    <h2 class="section-title">🎬 ALL PRODUCTIONS</h2>
+    <div class="project-grid" id="project-grid"></div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="lobby-footer">
+    <p>© <span id="year"></span> <span>The Architect's Theater</span> — Built by Bourneken</p>
+  </footer>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    (async () => {
+      initSupabase();
+      await loadUserState();
+      setupAuthListener();
+      initLobby();
+    })();
+  </script>
+</body>
+
+</html>

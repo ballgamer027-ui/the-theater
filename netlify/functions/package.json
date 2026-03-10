@@ -1,0 +1,9 @@
+{
+    "name": "the-architects-theater",
+    "version": "1.0.0",
+    "description": "Netlify Functions dependencies for The Architect's Theater",
+    "dependencies": {
+        "stripe": "^14.0.0",
+        "@supabase/supabase-js": "^2.39.0"
+    }
+}
