@@ -5,17 +5,17 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
           "mode": "list",
           "cachedResultName": "Noah_Live_Status",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "ชีต1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE/edit#gid=0"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit#gid=0"
         },
         "options": {}
       },
@@ -120,17 +120,17 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "1J1FmvSUGo-uoiHELk6ycNtEKke5ZGJ7qnaUxzRNN6hY",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
           "mode": "list",
           "cachedResultName": "Noah_Live_DB",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J1FmvSUGo-uoiHELk6ycNtEKke5ZGJ7qnaUxzRNN6hY/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "ชีต1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J1FmvSUGo-uoiHELk6ycNtEKke5ZGJ7qnaUxzRNN6hY/edit#gid=0"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit#gid=0"
         },
         "options": {}
       },
@@ -154,17 +154,17 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "1Grbr_T3WHjWIIG8QrnO9znf8sF-k5rlskN_hYDXxGzk",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
           "mode": "list",
           "cachedResultName": "User_DB",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Grbr_T3WHjWIIG8QrnO9znf8sF-k5rlskN_hYDXxGzk/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "ชีต1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Grbr_T3WHjWIIG8QrnO9znf8sF-k5rlskN_hYDXxGzk/edit#gid=0"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit#gid=0"
         },
         "filtersUI": {
           "values": [
@@ -346,17 +346,17 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "1J1FmvSUGo-uoiHELk6ycNtEKke5ZGJ7qnaUxzRNN6hY",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
           "mode": "list",
           "cachedResultName": "Noah_Live_DB",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J1FmvSUGo-uoiHELk6ycNtEKke5ZGJ7qnaUxzRNN6hY/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "ชีต1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J1FmvSUGo-uoiHELk6ycNtEKke5ZGJ7qnaUxzRNN6hY/edit#gid=0"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit#gid=0"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -430,17 +430,17 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "1J1FmvSUGo-uoiHELk6ycNtEKke5ZGJ7qnaUxzRNN6hY",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
           "mode": "list",
           "cachedResultName": "Noah_Live_DB",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J1FmvSUGo-uoiHELk6ycNtEKke5ZGJ7qnaUxzRNN6hY/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": 1943345711,
           "mode": "list",
           "cachedResultName": "Stage_Display",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J1FmvSUGo-uoiHELk6ycNtEKke5ZGJ7qnaUxzRNN6hY/edit#gid=1943345711"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit#gid=1943345711"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -504,7 +504,7 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "1Grbr_T3WHjWIIG8QrnO9znf8sF-k5rlskN_hYDXxGzk",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
           "mode": "list"
         },
         "sheetName": {
@@ -659,7 +659,7 @@
         "operation": "update",
         "documentId": {
           "__rl": true,
-          "value": "1Grbr_T3WHjWIIG8QrnO9znf8sF-k5rlskN_hYDXxGzk",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
           "mode": "list"
         },
         "sheetName": {
@@ -1000,7 +1000,7 @@
         "operation": "update",
         "documentId": {
           "__rl": true,
-          "value": "1Grbr_T3WHjWIIG8QrnO9znf8sF-k5rlskN_hYDXxGzk",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
           "mode": "list"
         },
         "sheetName": {

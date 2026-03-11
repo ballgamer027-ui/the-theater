@@ -160,17 +160,17 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
           "mode": "list",
           "cachedResultName": "Noah_Live_Status",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "ชีต1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE/edit#gid=0"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit#gid=0"
         },
         "options": {}
       },

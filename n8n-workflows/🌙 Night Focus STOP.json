@@ -173,7 +173,7 @@
         "operation": "update",
         "documentId": {
           "__rl": true,
-          "value": "1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
           "mode": "list",
           "cachedResultName": "Noah_Live_Status"
         },
