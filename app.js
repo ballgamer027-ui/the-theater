@@ -255,6 +255,7 @@ pm2-startup install
               response: 'Auto-reply to Chat',
               type: 'Smoke Test Workflow'
             },
+            workflowFile: 'n8n-workflows/Basic Live Reply .json',
             codeSnippet: `// Live Reply Basic — Workflow ตัวหลักใน Manual Pack
 // ใช้ทดสอบว่า n8n + API เชื่อมต่อถูกต้อง
 {
@@ -314,6 +315,7 @@ pm2-startup install
               api: 'YouTube Data API v3',
               output: 'Google Sheets (Status)'
             },
+            workflowFile: 'n8n-workflows/Master State Sync.json',
             codeSnippet: `// Master State Sync — n8n Workflow
 {
   "name": "① Master State Sync",
@@ -353,6 +355,7 @@ pm2-startup install
               personas: 'Noah 🌙 + Neon ✦',
               context: 'RAG + Chat History'
             },
+            workflowFile: 'n8n-workflows/Noah Station_ Eclipse Protocol.json',
             codeSnippet: `// Eclipse Protocol — Dual Persona Logic
 const persona = selectPersona(chatContext);
 
@@ -388,6 +391,7 @@ const reply = await openrouter.chat({
               social: 'YouTube Community Tab',
               engagement: 'Auto-reply + Posts'
             },
+            workflowFile: 'n8n-workflows/Social Engagement Agent.json',
             codeSnippet: `// Social Engagement — Shift Schedule
 const SHIFTS = {
   day:   { start: '06:00', end: '18:00', persona: 'noah', emoji: '🌙' },
@@ -421,6 +425,7 @@ async function postCommunityUpdate(shift) {
               action: 'Start Broadcast',
               fallback: 'Retry 3 times'
             },
+            workflowFile: 'n8n-workflows/🌙 Night Focus START.json',
             codeSnippet: `// Night Focus START — OBS + YouTube
 const OBS = require('obs-websocket-js');
 const obs = new OBS();
@@ -458,6 +463,7 @@ async function startBroadcast() {
               cleanup: 'Stats → Sheets',
               notify: 'LINE Notify'
             },
+            workflowFile: 'n8n-workflows/🌙 Night Focus STOP.json',
             codeSnippet: `// Night Focus STOP — Graceful Shutdown
 async function stopBroadcast() {
   // 1. Stop OBS
@@ -496,6 +502,7 @@ async function stopBroadcast() {
               source: 'YouTube Playlist API',
               vlc: 'VLC HTTP Interface'
             },
+            workflowFile: 'n8n-workflows/🎧 Noah station v4.json',
             codeSnippet: `// Music Engine v4 — Adaptive Playlist
 const MUSIC_MATRIX = {
   morning: {
@@ -535,6 +542,7 @@ function selectPlaylist() {
               alerting: 'LINE Notify',
               uptime: '99.9% Target'
             },
+            workflowFile: 'n8n-workflows/🛡️ Watchdog Protocol.json',
             codeSnippet: `#!/bin/bash
 # watchdog.sh — Dead Man's Switch
 
@@ -1199,13 +1207,34 @@ function switchTier(projectId, tier) {
 
 // --- Copy to Clipboard ---
 async function copyScript(btn) {
-  if (!currentModule || !currentModule.codeSnippet) return;
+  if (!currentModule || (!currentModule.codeSnippet && !currentModule.workflowFile)) return;
+
+  btn.innerHTML = `<span class="icon">⏳</span> กำลังคัดลอก...`;
+
+  let textToCopy = currentModule.codeSnippet;
+
+  if (currentModule.workflowFile) {
+    try {
+      const response = await fetch(currentModule.workflowFile);
+      if (!response.ok) throw new Error("File not found");
+      textToCopy = await response.text();
+    } catch (err) {
+      console.error("Fetch error:", err);
+      btn.innerHTML = `<span class="icon">❌</span> โหลด Workflow ไม่สำเร็จ`;
+      setTimeout(() => {
+        btn.innerHTML = `<span class="icon">📋</span> 1-CLICK COPY WORKFLOW`;
+      }, 2000);
+      return;
+    }
+  }
+
+  if (!textToCopy) return;
 
   try {
-    await navigator.clipboard.writeText(currentModule.codeSnippet);
+    await navigator.clipboard.writeText(textToCopy);
   } catch {
     const textarea = document.createElement('textarea');
-    textarea.value = currentModule.codeSnippet;
+    textarea.value = textToCopy;
     textarea.style.position = 'fixed';
     textarea.style.opacity = '0';
     document.body.appendChild(textarea);
@@ -1218,7 +1247,7 @@ async function copyScript(btn) {
   btn.innerHTML = `<span class="icon">✅</span> COPIED TO CLIPBOARD!`;
   setTimeout(() => {
     btn.classList.remove('copied');
-    btn.innerHTML = `<span class="icon">📋</span> 1-CLICK COPY SCRIPT`;
+    btn.innerHTML = currentModule.workflowFile ? `<span class="icon">📋</span> 1-CLICK COPY WORKFLOW` : `<span class="icon">📋</span> 1-CLICK COPY SCRIPT`;
   }, 2000);
 }
 
