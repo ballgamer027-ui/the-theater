@@ -787,6 +787,7 @@ function renderStage() {
   if (!stage) return;
 
   const userTier = getUserTierForProject(currentProject.id);
+  const tierInfo = TIERS[userTier];
   const videoPlayerHTML = currentProject.youtubeUrl ? `
     <div class="video-wrapper" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); background: #000;">
       <iframe src="${currentProject.youtubeUrl}" 
