@@ -42,7 +42,7 @@ const PROJECTS = [
     spotlight: true,
     videoTitle: 'Noah Station — Full System Walkthrough',
     videoSubtitle: 'คัมภีร์สร้างสถานีที่ไม่เคยหลับ',
-    youtubeUrl: 'https://www.youtube.com/embed/Hlz0N5IInio?vq=hd1080&modestbranding=1&rel=0',
+    youtubeUrl: 'https://www.youtube.com/embed/HIz0N5lInio?vq=hd1080&modestbranding=1&rel=0',
     deploymentGuideUrl: 'https://noahstation.netlify.app/',
     stats: { chapters: 7, workflows: 7, personas: 2, uptime: '24/7' },
     pricing: {
