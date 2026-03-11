@@ -256,44 +256,18 @@ pm2-startup install
               type: 'Smoke Test Workflow'
             },
             workflowFile: 'n8n-workflows/Basic Live Reply .json',
-            codeSnippet: `// Live Reply Basic — Workflow ตัวหลักใน Manual Pack
-// ใช้ทดสอบว่า n8n + API เชื่อมต่อถูกต้อง
-{
-  "name": "💬 Live Reply Basic",
-  "nodes": [
-    {
-      "name": "📡 Chat Webhook",
-      "type": "n8n-nodes-base.webhook",
-      "parameters": {
-        "path": "live-chat",
-        "httpMethod": "POST"
-      }
-    },
-    {
-      "name": "🤖 AI Reply",
-      "type": "n8n-nodes-base.httpRequest",
-      "parameters": {
-        "url": "https://openrouter.ai/api/v1/chat/completions",
-        "method": "POST",
-        "body": {
-          "model": "anthropic/claude-3-haiku",
-          "messages": [
-            { "role": "system", "content": "ตอบสั้น กระชับ เป็นมิตร" },
-            { "role": "user", "content": "={{ $json.message }}" }
-          ]
-        }
-      }
-    },
-    {
-      "name": "📤 Send Reply",
-      "type": "n8n-nodes-base.httpRequest",
-      "parameters": {
-        "url": "https://www.googleapis.com/youtube/v3/liveChat/messages",
-        "method": "POST"
-      }
-    }
-  ]
-}`,
+            codeSnippet: `// ⚙️ WORKFLOW LOGIC: 💬 Live Reply Basic
+// --------------------------------------------------
+// 1. 📡 ระบบดักฟังแชท YouTube Live (ผ่าน Webhook)
+// 2. 🧠 ส่งข้อความเข้า OpenRouter (AI Model)
+// 3. 📤 เอาคำตอบที่ AI คิดได้ ยิงกลับเข้า YouTube Live
+// --------------------------------------------------
+
+// 💡 ACTION REQUIRED (หลังกด Copy):
+// [ ] โหนด 🤖 AI Reply: ใส่ API Key ของ OpenRouter (ถ้ายังไม่มีให้สมัครสร้าง Key ก่อน)
+// [ ] โหนด 📤 Send Reply: ต่อ Google Credential ขากลับ
+// [ ] อย่าลืมเสียบ Webhook URL เข้ากับ Stream Deck หรือระบบที่คุณใช้ยิงแชทมา`,
+            codeLang: 'javascript'
             codeLang: 'json'
           }
         ]
@@ -316,30 +290,21 @@ pm2-startup install
               output: 'Google Sheets (Status)'
             },
             workflowFile: 'n8n-workflows/Master State Sync.json',
-            codeSnippet: `// Master State Sync — n8n Workflow
-{
-  "name": "① Master State Sync",
-  "nodes": [
-    {
-      "name": "⏰ Every 5 Minutes",
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "parameters": { "rule": { "interval": [{ "field": "minutes", "minutesInterval": 5 }] } }
-    },
-    {
-      "name": "📡 YouTube API — Check Live",
-      "type": "n8n-nodes-base.httpRequest",
-      "parameters": {
-        "url": "https://www.googleapis.com/youtube/v3/liveBroadcasts",
-        "qs": { "part": "snippet,status", "broadcastStatus": "active" }
-      }
-    },
-    {
-      "name": "📊 Write to Sheets",
-      "type": "n8n-nodes-base.googleSheets",
-      "parameters": { "operation": "update", "sheetName": "BridgeControl" }
-    }
-  ]
-}`,
+            codeSnippet: `// ⚙️ WORKFLOW LOGIC: ① Master State Sync
+// --------------------------------------------------
+// 1. ⏱️ ทริกเกอร์ทำงานอัตโนมัติทุกๆ 5 นาที
+// 2. 📡 ยิง API เช็คหลังบ้าน YouTube ว่า "ตอนนี้สตรีม Live อยู่ไหม?"
+// 3. ⚖️ เช็คเงื่อนไข (If/Else):
+//    🟢 ถ้า Live อยู่ -> อัปเดต Google Sheets เป็น "Active" พร้อมดึง Chat ID
+//    🔴 ถ้าหลุด/ปิดสตรีม -> อัปเดต Google Sheets เป็น "Offline"
+// --------------------------------------------------
+
+// 💡 ACTION REQUIRED (สิ่งที่คุณต้องทำหลังกด Copy):
+// [ ] โหนด 🔍 Check Active Stream: เลือก Credential เป็น Google Account ของคุณ
+// [ ] โหนด 🟢 Set Active: ใส่ ID ไฟล์ Google Sheets ของคุณ
+// [ ] โหนด 🔴 Set Offline: ใส่ ID ไฟล์ Google Sheets ของคุณ (ไฟล์เดียวกัน)
+// [ ] เปิดสวิตช์ Active (มุมขวาบน) ให้เป็น ON เพื่อเริ่มให้ระบบทำงาน 24/7`,
+            codeLang: 'javascript'
             codeLang: 'json'
           },
           {
@@ -356,26 +321,20 @@ pm2-startup install
               context: 'RAG + Chat History'
             },
             workflowFile: 'n8n-workflows/Noah Station_ Eclipse Protocol.json',
-            codeSnippet: `// Eclipse Protocol — Dual Persona Logic
-const persona = selectPersona(chatContext);
+            codeSnippet: `// ⚙️ WORKFLOW LOGIC: ② Eclipse Protocol
+// --------------------------------------------------
+// 1. 📡 ดึงแชทล่าสุดจาก YouTube 
+// 2. 💾 อ่าน User Profile จาก Sheets (กรองคนหน้าใหม่/ขาประจำ/VIP)
+// 3. 🧠 คำนวณความทรงจำ Context (เขาเคยคุยเรื่องอะไรมาบ้าง)
+// 4. 🔀 ตัดสินใจใช้ Persona (พี่ Noah สายชิลล์ หรือ น้อง Neon สายซ่า)
+// 5. 📤 ยิงคำตอบลง YouTube Chat แบบแนบเนียน
+// --------------------------------------------------
 
-// Noah 🌙 — สุขุม ให้ข้อมูลที่เป็นประโยชน์
-const NOAH_SYSTEM = \`คุณคือ Noah — ผู้ดูแลสถานี
-พูดสุภาพ ให้ข้อมูลจริง ไม่มัวมั่ว
-ถ้าไม่รู้ให้บอกตรงๆ ว่าไม่รู้\`;
-
-// Neon ✦ — สนุก กวนประสาท แต่น่ารัก
-const NEON_SYSTEM = \`คุณคือ Neon — DJ ประจำสถานี
-พูดสนุก ใช้อิโมจิเยอะ กวนได้นิดหน่อย
-แนะนำเพลงเก่งมาก\`;
-
-const reply = await openrouter.chat({
-  model: 'anthropic/claude-3-haiku',
-  messages: [
-    { role: 'system', content: persona === 'noah' ? NOAH_SYSTEM : NEON_SYSTEM },
-    { role: 'user', content: chatMessage }
-  ]
-});`,
+// 💡 ACTION REQUIRED (หลังกด Copy):
+// [ ] โหนด Code ( Build Queue ): เลื่อนหา MY_BOT_NAMES แล้วเปลี่ยนเป็นชื่อน้องบอทของคุณ
+// [ ] โหนด Code ( State Logic ): เลื่อนหา MY_CREATOR_NAMES ใส่ชื่อบัญชีแชทบอสของคุณ (จะได้ยศ GOD)
+// [ ] โหนด Sheets ทุกอัน: เปลี่ยน Google Sheet ID ชี้ไปบ้านใหม่ของคุณให้ครบ
+// [ ] โหนด 🤖 AI: ต่อ OpenRouter API Key`,
             codeLang: 'javascript'
           },
           {
@@ -392,24 +351,18 @@ const reply = await openrouter.chat({
               engagement: 'Auto-reply + Posts'
             },
             workflowFile: 'n8n-workflows/Social Engagement Agent.json',
-            codeSnippet: `// Social Engagement — Shift Schedule
-const SHIFTS = {
-  day:   { start: '06:00', end: '18:00', persona: 'noah', emoji: '🌙' },
-  night: { start: '18:00', end: '06:00', persona: 'neon', emoji: '✦' }
-};
+            codeSnippet: `// ⚙️ WORKFLOW LOGIC: ③ Social Engagement Agent
+// --------------------------------------------------
+// 1. ⏰ แยกกะการทำงาน (Day/Night Shift)
+// 2. 📱 สุ่มเป้าหมาย Social (เช่น ตั้งสเตตัส Community Tab หรือ อัปเดต X/Twitter)
+// 3. 🧠 สั่ง AI วางสคริปต์กวนๆ ตามสถานการณ์ปัจจุบัน
+// 4. 📢 บรอดแคสต์ข้อความลงหน้าโซเชียลแบบอัตโนมัติ
+// --------------------------------------------------
 
-function getCurrentShift() {
-  const hour = new Date().getHours();
-  return (hour >= 6 && hour < 18) ? SHIFTS.day : SHIFTS.night;
-}
-
-// Auto-post to Community Tab
-async function postCommunityUpdate(shift) {
-  const message = shift.persona === 'noah'
-    ? '☀️ สวัสดีตอนเช้าครับ Noah มาเปิดเพลง Chill ให้ฟังนะ'
-    : '🌙 Neon มาแล้วจ้า! คืนนี้มีเพลง Lo-Fi สุดพิเศษ ✦';
-  await youtube.postCommunity(message);
-}`,
+// 💡 ACTION REQUIRED (หลังกด Copy):
+// [ ] โหนด Google Sheets: ต่อ Credential และใส่ Sheet ID ของคลังมุก/สคริปต์
+// [ ] โหนด OpenRouter: ใส่ API Key
+// [ ] โหนด โพสต์เป้าหมาย: ผูกบัญชี Social ที่ต้องการ (เช่น YouTube API สำหรับ Community)`,
             codeLang: 'javascript'
           },
           {
@@ -426,28 +379,19 @@ async function postCommunityUpdate(shift) {
               fallback: 'Retry 3 times'
             },
             workflowFile: 'n8n-workflows/🌙 Night Focus START.json',
-            codeSnippet: `// Night Focus START — OBS + YouTube
-const OBS = require('obs-websocket-js');
-const obs = new OBS();
+            codeSnippet: `// ⚙️ WORKFLOW LOGIC: ④ Night Focus START
+// --------------------------------------------------
+// 1. 🚦 รับ Signal ให้เปิดสถานี (จาก webhook หรือปุ่มรัน)
+// 2. 🎛️ ยิงคำสั่งเข้า OBS WebSocket ให้เปลี่ยน Scene เป็น "Starting..."
+// 3. 📡 สั่ง YouTube สร้าง Live Broadcast ใหม่
+// 4. 🎥 Bind (ผูก) สตรีมคีย์เข้ากับ YouTube
+// 5. 🚀 สั่ง Go Live! (พร้อมบันทึกสถานะลง Bridge Control)
+// --------------------------------------------------
 
-async function startBroadcast() {
-  // 1. Connect OBS
-  await obs.connect('ws://localhost:4455', password);
-  
-  // 2. Set Scene
-  await obs.call('SetCurrentProgramScene', { sceneName: 'Night Focus' });
-  
-  // 3. Start Streaming
-  await obs.call('StartStream');
-  
-  // 4. Verify via YouTube API
-  const status = await youtube.checkBroadcastStatus();
-  if (status !== 'live') {
-    await retry(startBroadcast, 3);
-  }
-  
-  console.log('🟢 Broadcast LIVE');
-}`,
+// 💡 ACTION REQUIRED (หลังกด Copy):
+// [ ] โหนด 🎥 OBS: ใส่ Password ของ OBS WebSocket คุกเข่ารับคำสั่ง (ทริค: ตั้งในเครื่องตัวเอง)
+// [ ] โหนด 📡 YouTube: ต่อ Account ช่องสตรีม
+// [ ] โหนด 💾 Sheets: ผูก Sheet ID แจ้งสถานะว่า "สตรีมติดแล้ว!"`,
             codeLang: 'javascript'
           },
           {
@@ -464,29 +408,19 @@ async function startBroadcast() {
               notify: 'LINE Notify'
             },
             workflowFile: 'n8n-workflows/🌙 Night Focus STOP.json',
-            codeSnippet: `// Night Focus STOP — Graceful Shutdown
-async function stopBroadcast() {
-  // 1. Stop OBS
-  await obs.call('StopStream');
-  
-  // 2. End YouTube Broadcast
-  await youtube.endBroadcast(broadcastId);
-  
-  // 3. Save stats to Sheets
-  await sheets.append('StreamLog', {
-    date: new Date().toISOString(),
-    duration: calculateDuration(),
-    peakViewers: stats.peakViewers,
-    chatMessages: stats.totalMessages
-  });
-  
-  // 4. Notify via LINE
-  await lineNotify.send(
-    '📊 Stream สิ้นสุด\\n' +
-    \`⏱ Duration: \${duration}\\n\` +
-    \`👥 Peak: \${stats.peakViewers}\`
-  );
-}`,
+            codeSnippet: `// ⚙️ WORKFLOW LOGIC: ⑤ Night Focus STOP
+// --------------------------------------------------
+// 1. 🚦 รับ Signal จบสตรีม
+// 2. 🎛️ สั่ง OBS เปลี่ยน Scene เป็น "Offline / นอนหลับ"
+// 3. 📡 สั่ง YouTube หยุด Broadcast (ตัดภาพ)
+// 4. 📊 สรุปสถิติ (คนดูแชท, ยอดวิว) -> ยัดลง Sheets
+// 5. 📱 ยิง LINE แจ้งเตือนบอสว่า "ปิดสถานีเรียบร้อยครับ"
+// --------------------------------------------------
+
+// 💡 ACTION REQUIRED (หลังกด Copy):
+// [ ] โหนด 🎥 OBS: เช็ค WebSocket Password
+// [ ] โหนด 📡 YouTube: ต่อ Credential ช่อง
+// [ ] โหนด 📱 LINE Notify: ผูก Token แจ้งเตือนส่วนตัว`,
             codeLang: 'javascript'
           },
           {
@@ -503,30 +437,19 @@ async function stopBroadcast() {
               vlc: 'VLC HTTP Interface'
             },
             workflowFile: 'n8n-workflows/🎧 Noah station v4.json',
-            codeSnippet: `// Music Engine v4 — Adaptive Playlist
-const MUSIC_MATRIX = {
-  morning: {
-    clear:  'PLxxxx_morning_chill',
-    rain:   'PLxxxx_rainy_jazz',
-    cloudy: 'PLxxxx_soft_ambient'
-  },
-  afternoon: {
-    clear:  'PLxxxx_upbeat_lofi',
-    rain:   'PLxxxx_cozy_rain',
-    cloudy: 'PLxxxx_focus_beats'
-  },
-  night: {
-    clear:  'PLxxxx_night_drive',
-    rain:   'PLxxxx_midnight_rain',
-    cloudy: 'PLxxxx_deep_focus'
-  }
-};
+            codeSnippet: `// ⚙️ WORKFLOW LOGIC: ⑥ Music Engine v4
+// --------------------------------------------------
+// 1. 🕒 เช็คเวลาปัจจุบัน (เช้า / บ่าย / ดึก)
+// 2. 🌤️ เช็คสภาพอากาศจริงๆ (ฝนตก / แดดออก / หนาว)
+// 3. 🎵 เปิดคำภีร์ Music Matrix เลือก Playlist ที่ตรงฟีลที่สุด
+// 4. 📻 สั่งโปรแกรมเล่นเพลง (เช่น VLC หรือ Spotify) ให้เปิดเพลย์ลิสต์นั้น
+// 5. 📝 โพสต์ชื่อเพลงที่กำลังเล่นลงจอ (ผ่าน Text File ทะลุ OBS)
+// --------------------------------------------------
 
-function selectPlaylist() {
-  const timeSlot = getTimeSlot(); // morning|afternoon|night
-  const weather = await getWeather(); // clear|rain|cloudy
-  return MUSIC_MATRIX[timeSlot][weather];
-}`,
+// 💡 ACTION REQUIRED (หลังกด Copy):
+// [ ] โหนด 🌤️ Weather API: ใส่ API Key ของ OpenWeatherMap
+// [ ] โหนด 📻 เครื่องเล่นเพลง: เซ็ตค่า Credential ของ VLC / Spotify (ถ้ามี)
+// [ ] โหนด 📝 อัปเดตชื่อเพลง: ชี้ Path ปลายทางไปที่โฟลเดอร์ Text บนคอมพิวเตอร์ของคุณ`,
             codeLang: 'javascript'
           },
           {
@@ -543,33 +466,20 @@ function selectPlaylist() {
               uptime: '99.9% Target'
             },
             workflowFile: 'n8n-workflows/🛡️ Watchdog Protocol.json',
-            codeSnippet: `#!/bin/bash
-# watchdog.sh — Dead Man's Switch
+            codeSnippet: `// ⚙️ WORKFLOW LOGIC: ⑦ Watchdog Protocol (Auto-heal)
+// --------------------------------------------------
+// 1. 🛡️ รันลูปเช็คชีพจรทุกๆ 5 นาที
+// 2. 🩺 ยิงขอ Health Status จากระบบทั้งหมด (OBS / n8n / Net / YouTube)
+// 3. ⚖️ ถ้าพบว่า "ล่ม/ค้าง":
+//    - ถ้า OBS เด้ง -> สั่งรันขึ้นมาใหม่
+//    - ถ้าเน็ตตัด -> สั่ง Wait แล้วต่อคิว Reconnect
+// 4. 📱 รีพอร์ตบอสทาง LINE ทันที
+// --------------------------------------------------
 
-SERVICES=("noah-n8n" "obs-headless")
-LINE_TOKEN="\${LINE_NOTIFY_TOKEN}"
-
-for svc in "\${SERVICES[@]}"; do
-  STATUS=$(pm2 jlist | jq -r ".[] | select(.name==\\"$svc\\") | .pm2_env.status")
-  
-  if [ "$STATUS" != "online" ]; then
-    echo "⚠️ $svc is $STATUS — restarting..."
-    pm2 restart "$svc"
-    
-    # Alert via LINE Notify
-    curl -X POST https://notify-api.line.me/api/notify \\
-      -H "Authorization: Bearer $LINE_TOKEN" \\
-      -d "message=🔧 Auto-healed: $svc was $STATUS"
-  fi
-done
-
-# Check YouTube stream status
-STREAM_OK=$(curl -s http://localhost:5678/webhook/health | jq -r '.streamActive')
-if [ "$STREAM_OK" != "true" ]; then
-  echo "🔴 Stream is DOWN — triggering restart..."
-  curl -X POST http://localhost:5678/webhook/focus-start
-fi`,
-            codeLang: 'bash'
+// 💡 ACTION REQUIRED (หลังกด Copy):
+// [ ] โหนด 🩺 สุขภาพ: เซ็ต Target เช็ค IP หรือ Service ที่รันอยู่
+// [ ] โหนด 📲 LINE Notify: ผูก Token และปรับข้อความเตือนภัยตื่นตูม`,
+            codeLang: 'javascript'
           }
         ]
       },
