@@ -648,18 +648,18 @@ fi`,
           {
             id: "secret-bonus",
             icon: "🔥",
-            title: "เทคนิคสาย Dark ขั้นเทพ",
-            shortDesc: "ความลับสวรรค์ที่เฉพาะ VIP จะได้รู้",
+            title: "VIP Discord & เทคนิคขั้นเทพ",
+            shortDesc: "กุญแจเข้ากลุ่มลับ และ Technical Support",
             type: "architecture",
             requiredTier: "vip",
-            description: "นี่คือความลับสวรรค์ที่เฉพาะ VIP จะได้รู้... (เดี๋ยวบอสมาเติมเนื้อหาต่อ)",
+            description: "สำหรับเพื่อนชาว VIP นี่คือกุญแจเข้าสู่ Discord ลับของเรา ที่นี่จะมีบอท Noah คอยซัพพอร์ต 24/7 และเป็นที่พูดคุยเทคนิคสาย Dark ที่เปิดเผยที่อื่นไม่ได้",
             techSpecs: {
-              level: 'Advanced Dark Mode',
-              risk: 'High Reward',
-              target: 'Algorithm Hack',
+              access: 'Discord Private Server',
+              support: '24/7 AI + VIP Human Loop',
+              community: 'Exclusive Members Only',
               status: 'Classified'
             },
-            codeSnippet: `// 💀 [CLASSIFIED INFORMATION]\n// [ACCESS GRANTED FOR VIP ONLY]\n\nconst THE_DARK_ARTS = {\n  secret1: "ทริคดัน AI ของ YouTube ให้เปิดการมองเห็นตอนดึก",\n  secret2: "การทะลวง Limit ของ API แบบเนียนๆ",\n  secret3: "วิธีโคลนตัวเองให้รัน 5 สถานีพร้อมกัน"\n};\n\n// TODO: เตรียมเนื้อหาส่วนนี้ให้เดือดที่สุด`,
+            codeSnippet: `// 💀 [CLASSIFIED INFORMATION]\n// [ACCESS GRANTED FOR VIP ONLY]\n\n// 1. คัดลอกลิงก์ด้านล่างนี้ไปเปิดใน Browser\nconst discordInvite = "https://discord.gg/YOUR_INVITE_LINK_HERE";\n\n// 2. เมื่อเข้าไปแล้ว ให้ไปที่ห้อง #verify เพื่อยืนยันตัวตน\n// 3. หลังจากนั้นห้อง #vip-support จะเปิดออก\n// 4. พิมพ์ถามปัญหาหรือพูดคุยเทคนิคในห้องนั้นได้เลย บอท Noah สแตนด์บายอยู่ 24/7`,
             codeLang: 'javascript'
           }
         ]
