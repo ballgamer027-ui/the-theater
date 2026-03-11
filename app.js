@@ -614,6 +614,22 @@ fi`,
             codeLang: 'bash'
           },
           {
+            id: 'troubleshooting',
+            icon: '🛡️',
+            title: 'Failure Patterns & คู่มือแก้กรรม',
+            shortDesc: 'อาการยอดฮิต และวิธีแก้ตลับเมตร 1-2-3',
+            requiredTier: 'workflow',
+            description: 'รวมอาการพังยอดฮิตของระบบ Auto — API ล่ม, Token หมดอายุ, n8n ค้างจอขาว — พร้อมวิธีเชือดบั๊กสไตล์ Dark Architect'
+          },
+          {
+            id: 'monetization',
+            icon: '🤑',
+            title: 'Monetization & Scaling',
+            shortDesc: 'วิธีทำเงินจากสถานีที่หลับไม่เป็น',
+            requiredTier: 'vip',
+            description: 'ระบบเสร็จแล้ว แล้วเงินล่ะ? — วิธีเอาสถานีไปรับสปอนเซอร์, ดึงคนเข้า LINE OA ฟันกำไร, และโมเดลรับจ้างเปิดสถานีให้คนอื่น'
+          },
+          {
             id: "secret-bonus",
             icon: "🔥",
             title: "เทคนิคสาย Dark ขั้นเทพ",
