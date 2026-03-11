@@ -610,27 +610,17 @@ fi`,
               monitoring: 'LINE + Sheets',
               support: 'VIP Group Only'
             },
-            codeSnippet: `# Zero-Touch Deployment Checklist
-# ✅ Pre-Flight
-pm2 status                    # All services online
-crontab -l                    # Watchdog scheduled
-cloudflared tunnel list       # Tunnel active
-obs --version                 # OBS headless ready
-
-# ✅ Go-Live Sequence
-pm2 start noah-n8n            # Start n8n
-sleep 5
-curl localhost:5678/healthz   # Verify n8n
-curl -X POST localhost:5678/webhook/focus-start  # Start stream
-
-# ✅ Verify
-# → YouTube Studio: Stream LIVE
-# → Google Sheets: BridgeControl updated
-# → LINE: No error alerts
-# → Chat: AI responding
-
-echo "🟢 NOAH STATION IS ONLINE — ZERO TOUCH ACTIVE"`,
+            codeSnippet: `# Zero-Touch Deployment Checklist\n# ✅ Pre-Flight\npm2 status                    # All services online\ncrontab -l                    # Watchdog scheduled\ncloudflared tunnel list       # Tunnel active\nobs --version                 # OBS headless ready\n\n# ✅ Go-Live Sequence\npm2 start noah-n8n            # Start n8n\nsleep 5\ncurl localhost:5678/healthz   # Verify n8n\ncurl -X POST localhost:5678/webhook/focus-start  # Start stream\n\n# ✅ Verify\n# → YouTube Studio: Stream LIVE\n# → Google Sheets: BridgeControl updated\n# → LINE: No error alerts\n# → Chat: AI responding\n\necho "🟢 NOAH STATION IS ONLINE — ZERO TOUCH ACTIVE"`,
             codeLang: 'bash'
+          },
+          {
+            id: "secret-bonus",
+            icon: "🔥",
+            title: "เทคนิคสาย Dark ขั้นเทพ",
+            shortDesc: "ความลับสวรรค์ที่เฉพาะ VIP จะได้รู้",
+            type: "architecture",
+            requiredTier: "vip",
+            description: "นี่คือความลับสวรรค์ที่เฉพาะ VIP จะได้รู้... (เดี๋ยวบอสมาเติมเนื้อหาต่อ)"
           }
         ]
       }
