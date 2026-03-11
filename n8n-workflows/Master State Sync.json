@@ -1,0 +1,310 @@
+{
+  "name": "Master State Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "c98b5828-46b1-4d56-b7f1-09c7b71b77ea",
+      "name": "⏱️ Master Sync (5m)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/liveBroadcasts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "snippet"
+            },
+            {
+              "name": "broadcastStatus",
+              "value": "active"
+            },
+            {
+              "name": "broadcastType",
+              "value": "all"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "547d6772-43e9-4345-8d66-d66a3874db91",
+      "name": "🔍 Check Active Stream",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -256,
+        0
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "4YodCAnvEGWKVPxO",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.pageInfo.totalResults }}",
+              "operation": "larger"
+            }
+          ]
+        }
+      },
+      "id": "fb9b25ac-633e-4622-bc21-b88b509a7657",
+      "name": "⚖️ Is Stream Active?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE",
+          "mode": "list",
+          "cachedResultName": "Noah_Live_Status"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "ชีต1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": 2,
+            "Stream_Status": "=Active",
+            "Live_Chat_ID": "={{ $json.items[0].snippet.liveChatId }}",
+            "Last_Updated": "={{ $now.setZone('Asia/Bangkok').toFormat('yyyy-MM-dd HH:mm:ss') }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Stream_Status",
+              "displayName": "Stream_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Live_Chat_ID",
+              "displayName": "Live_Chat_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last_Updated",
+              "displayName": "Last_Updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "f99c11c2-8329-422d-9d11-0b7a24ac3c64",
+      "name": "🟢 Set Active",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.3,
+      "position": [
+        192,
+        -112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "cO59luUKjwKNG0fY",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE",
+          "mode": "list",
+          "cachedResultName": "Noah_Live_Status"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "ชีต1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": 2,
+            "Stream_Status": "=Offline",
+            "Live_Chat_ID": "=-",
+            "Last_Updated": "={{ $now.setZone('Asia/Bangkok').toFormat('yyyy-MM-dd HH:mm:ss') }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Stream_Status",
+              "displayName": "Stream_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Live_Chat_ID",
+              "displayName": "Live_Chat_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last_Updated",
+              "displayName": "Last_Updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "56897dc1-a116-4c34-a658-8c6861f3c5e4",
+      "name": "🔴 Set Offline",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.3,
+      "position": [
+        192,
+        96
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "cO59luUKjwKNG0fY",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "⏱️ Master Sync (5m)": {
+      "main": [
+        [
+          {
+            "node": "🔍 Check Active Stream",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 Check Active Stream": {
+      "main": [
+        [
+          {
+            "node": "⚖️ Is Stream Active?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚖️ Is Stream Active?": {
+      "main": [
+        [
+          {
+            "node": "🟢 Set Active",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🔴 Set Offline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Bangkok",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "8b4de012-db46-4d9c-9f8f-737c0b3816d2",
+  "meta": {
+    "instanceId": "03915bbc56804ec06e704c04a2a9522c55f1d139f61dc3f72ab4cce8d475b074"
+  },
+  "id": "jdA6UMYPhprQHEnx",
+  "tags": []
+}

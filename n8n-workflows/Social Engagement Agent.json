@@ -1,0 +1,322 @@
+{
+  "name": "Social Engagement Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 15 0 * * *"
+            },
+            {
+              "field": "cronExpression",
+              "expression": "0 45 7 * * *"
+            }
+          ]
+        }
+      },
+      "id": "3b42e904-9e0a-4a94-888e-b413d18cee15",
+      "name": "⏱️ Sync with Live Start",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -864,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\n\n// แปลงเวลาเป็นไทย\nconst thaiTime = new Date(\n  now.toLocaleString(\"en-US\", { timeZone: \"Asia/Bangkok\" })\n);\n\nconst hour = thaiTime.getHours();\nconst minute = thaiTime.getMinutes(); // ดึงค่านาทีมาด้วย\n\nlet shift = \"\";\nlet vibe = \"\";\n// ถ้านาทีมากกว่า 30 ให้ถือว่าเป็นช่วง \"ปิดสถานี\" ถ้าไม่ใช่คือ \"เปิดสถานี\"\nlet actionType = minute >= 30 ? \"ปิดสถานี\" : \"เปิดสถานี\"; \n\nif (hour >= 0 && hour < 4) {\n  shift = \"Midnight Deep Dive 🌑\";\n  vibe = \"ความเงียบ, การทบทวนตัวเอง, พื้นที่ปลอดภัยในความมืด\";\n} else if (hour >= 10 && hour < 14) {\n  shift = \"Daylight Focus ☀️\";\n  vibe = \"การเริ่มต้นใหม่, พลังงานในการทำงาน, การมีเพื่อนร่วมนั่งเงียบๆ\";\n} else if (hour >= 19 && hour < 22) {\n  shift = \"Evening Chill 🌆\";\n  vibe = \"การทิ้งความเหนื่อยล้า, บรรยากาศอบอุ่นหลังเลิกงาน, การพักผ่อน\";\n} else {\n  shift = \"OFFLINE 💤\";\n  vibe = \"สถานีหยุดพักการโคจรชั่วคราว\";\n}\n\nreturn [\n  {\n    json: { shift, vibe, hour, actionType } // ส่ง actionType ไปด้วย\n  }\n];"
+      },
+      "id": "50f817f8-9ce8-4c65-a387-b25f5f8443e7",
+      "name": "🧠 Identify Shift",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "model": "minimax/minimax-m2.5",
+        "options": {}
+      },
+      "id": "ca53a6ce-f657-4f75-bb89-aa0eab86db94",
+      "name": "OpenRouter Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        240,
+        48
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "66mRXgESWbC1jEBG",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "==คุณคือดีเจของสถานี \"เสียงที่ไม่พูด\"\n\nภารกิจ: พูด {{ $json.actionType }} สำหรับกะ {{ $json.shift }}\nบรรยากาศของช่วงคือ {{ $json.vibe }}\n\n{{ $json.actionType === 'เปิดสถานี' ? 'โครงสร้างข้อความ: 1. ประโยคเปิดเข้าสู่ช่วงกะ 2. บรรยายบรรยากาศสั้นๆ 3. ปิดด้วยคำถามปลายเปิดชวนผู้ฟังคุยแบบธรรมชาติ' : 'โครงสร้างข้อความ: 1. ประโยคบอกลาว่าใกล้หมดเวลากะนี้แล้ว 2. ทิ้งท้ายด้วยความรู้สึกดีๆ หรือให้กำลังใจสั้นๆ 3. บอกให้ผู้ฟังพักผ่อนหรือเตรียมตัวเจอกันใหม่' }}\n\nโทน: อบอุ่น เงียบ ลึกลับ นุ่มลึก สไตล์ Cyberpunk Lofi เหมือนดีเจพูดกับผู้ฟังแบบเป็นกันเอง\n\n⚠️ กติกาที่ต้องทำตามอย่างเคร่งครัด:\n- สำคัญมาก: ความยาวรวมทั้งหมด \"ห้ามเกิน 150 ตัวอักษร\" เด็ดขาด! (เขียนสั้นๆ กระชับ)\n- ห้ามใส่ลิงก์\n- ห้ามใช้คำปลอบใจทั่วไป เช่น \"สู้ๆ\" หรือ \"สู้เขานะ\"\n- ใช้ emoji ได้แค่ 1-2 ตัว\n- ตอบมาเฉพาะข้อความที่จะใช้พูดจริงๆ ห้ามมีคำอธิบายเพิ่มเติม",
+        "options": {}
+      },
+      "id": "121b6937-1aa6-4545-92d5-efa8116ce56d",
+      "name": "✍️ Generate Page Post",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/youtube/v3/liveChat/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "snippet"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "snippet.liveChatId",
+              "value": "={{ $('Get row(s) in sheet').item.json.Live_Chat_ID }}"
+            },
+            {
+              "name": "snippet.type",
+              "value": "textMessageEvent"
+            },
+            {
+              "name": "snippet.textMessageDetails.messageText",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "09fba179-cf11-4aa7-9f38-254fbd5d355e",
+      "name": "📢 Post as เสียงที่ไม่พูด",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        640,
+        -160
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "4YodCAnvEGWKVPxO",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/liveChat/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "liveChatId",
+              "value": "={{ $json.Live_Chat_ID }}"
+            },
+            {
+              "name": "part",
+              "value": "snippet,authorDetails"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ca2f6446-9ad5-4442-b0ea-d51b7305df83",
+      "name": "👂 Fetch Chat",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -192,
+        -160
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "4YodCAnvEGWKVPxO",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE",
+          "mode": "list",
+          "cachedResultName": "Noah_Live_Status",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "ชีต1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -640,
+        -144
+      ],
+      "id": "ba70f31e-e10d-4ce4-bc61-5f24b6e6bd8d",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "cO59luUKjwKNG0fY",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6da13f5a-1178-42e8-b3b2-b2b56352932c",
+              "leftValue": "={{ $json.Stream_Status }}",
+              "rightValue": "Active",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -432,
+        -144
+      ],
+      "id": "71834f0e-07e4-4c4b-b137-860e7b1efd97",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "⏱️ Sync with Live Start": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Identify Shift": {
+      "main": [
+        [
+          {
+            "node": "✍️ Generate Page Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "✍️ Generate Page Post",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✍️ Generate Page Post": {
+      "main": [
+        [
+          {
+            "node": "📢 Post as เสียงที่ไม่พูด",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "👂 Fetch Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "👂 Fetch Chat": {
+      "main": [
+        [
+          {
+            "node": "🧠 Identify Shift",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Bangkok",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "2eaac275-0df5-451e-9171-7abceca508b4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "03915bbc56804ec06e704c04a2a9522c55f1d139f61dc3f72ab4cce8d475b074"
+  },
+  "id": "GoWIygF8RSEzCOKO",
+  "tags": []
+}

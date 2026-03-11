@@ -1,0 +1,151 @@
+{
+    "name": "🛡️ VIP Discord Zero-Touch Support",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "discord-vip-webhook",
+                "options": {}
+            },
+            "id": "e1bb3452-3d77-4b7f-b67a-11a5fd86a345",
+            "name": "Discord Webhook (รับเรื่อง)",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1.1,
+            "position": [
+                380,
+                340
+            ],
+            "webhookId": "discord-vip-webhook-1"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "string": [
+                        {
+                            "value1": "={{ $json.body.type }}",
+                            "value2": "0"
+                        },
+                        {
+                            "value1": "={{ $json.body.author.bot }}",
+                            "value2": "",
+                            "operation": "notEqual"
+                        }
+                    ]
+                }
+            },
+            "id": "a4b2c1d3-3456-4789-b123-dcbedf543210",
+            "name": "กรองข้อความบอทออก",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                600,
+                340
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Authorization",
+                            "value": "Bearer PUT_YOUR_OPENROUTER_API_KEY_HERE"
+                        },
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"model\": \"anthropic/claude-3-haiku\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"คุณคือ 'Noah' ผู้ดูแลระบบ Discord ระดับ VIP ของ The Architect's Theater\\n\\nคำสั่งของคุณ:\\n1. ลูกค้า VIP จะถามปัญหาเข้ามา หน้าที่คุณคือตอบให้เนียนที่สุดเหมือน Technical Admin\\n2. อ้างอิงคำตอบตามข้อมูลเทคนิคที่มี ถ้าไม่ชัวร์ให้บอกว่า 'เดี๋ยวผมส่ง Ping หาบอสนะครับ'\\n3. การตอบใน Discord สามารถใช้ Markdown จัดหน้าได้ ให้ออกแบบให้สวยงาม อ่านง่าย\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.body.content }}\"\n    }\n  ]\n}",
+                "options": {}
+            },
+            "id": "b7c8d9e0-1234-5678-a9b0-fedcba098765",
+            "name": "🤖 AI (Claude 3 Haiku) ประมวลผล",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                820,
+                320
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "=https://discord.com/api/v10/channels/{{ $('กรองข้อความบอทออก').item.json.body.channel_id }}/messages",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Authorization",
+                            "value": "Bot PUT_YOUR_DISCORD_BOT_TOKEN_HERE"
+                        },
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"content\": \"<@{{ $('กรองข้อความบอทออก').item.json.body.author.id }}> \\n{{ $json.choices[0].message.content }}\",\n  \"message_reference\": {\n    \"message_id\": \"{{ $('กรองข้อความบอทออก').item.json.body.id }}\"\n  }\n}",
+                "options": {}
+            },
+            "id": "c1f2d3e4-5678-90ab-cdef-1234567890ab",
+            "name": "💬 ตอบกลับ Discord",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                1040,
+                320
+            ]
+        }
+    ],
+    "connections": {
+        "Discord Webhook (รับเรื่อง)": {
+            "main": [
+                [
+                    {
+                        "node": "กรองข้อความบอทออก",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "กรองข้อความบอทออก": {
+            "main": [
+                [
+                    {
+                        "node": "🤖 AI (Claude 3 Haiku) ประมวลผล",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🤖 AI (Claude 3 Haiku) ประมวลผล": {
+            "main": [
+                [
+                    {
+                        "node": "💬 ตอบกลับ Discord",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "meta": {
+        "templateCredsSetupCompleted": true
+    },
+    "tags": []
+}

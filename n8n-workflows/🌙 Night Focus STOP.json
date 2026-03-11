@@ -1,0 +1,417 @@
+{
+  "name": "🌙 Night Focus STOP",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "edbb841b-b59d-4d54-944f-48a5b5133f22",
+      "name": "⏰ HEARTBEAT: SHIFT_END",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -336,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/liveBroadcasts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "id,snippet"
+            },
+            {
+              "name": "broadcastStatus",
+              "value": "active"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "401910ef-dd1c-4168-9cff-98f5233a01a9",
+      "name": "📡 SCAN: ACTIVE_BROADCAST",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -128,
+        464
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "3Rn4AIhA9WNGXQHS",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "stop"
+      },
+      "id": "f2003d0b-d90d-414d-8b5b-308bc45e9589",
+      "name": "🛑 CORE_CMD: STOP_OBS_ENGINE",
+      "type": "@mashgizmo/n8n-nodes-obs-websocket.obsWebsocket",
+      "typeVersion": 1,
+      "position": [
+        560,
+        480
+      ],
+      "credentials": {
+        "obsWebsocketApi": {
+          "id": "YdJyw9KTuIlfAvZ4",
+          "name": "OBS WebSocket account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "x-ai/grok-4.1-fast",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        912,
+        672
+      ],
+      "id": "025da822-34b0-445c-853c-d3e03bfebed2",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Uv0TlyNY7O2GZEZi",
+          "name": "mac mini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/youtube/v3/liveBroadcasts/transition",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "broadcastStatus",
+              "value": "complete"
+            },
+            {
+              "name": "id",
+              "value": "={{ $json.items[0].id }}"
+            },
+            {
+              "name": "part",
+              "value": "snippet"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "🔴 CORE_CMD: TERMINATE_BROADCAST",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        336,
+        320
+      ],
+      "id": "26c19b77-8eca-4365-8814-dc3fb78834ad",
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "3Rn4AIhA9WNGXQHS",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "failsafe-check-ultimate",
+              "leftValue": "={{ $json.pageInfo.totalResults }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "551b85d3-3231-4d57-baac-860380d8bcb2",
+      "name": "⚖️ Has Active Stream?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        96,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1zESa_cVk0euew4vlC-rLx5Ps4LjsNWgQe74JF7AXBeE",
+          "mode": "list",
+          "cachedResultName": "Noah_Live_Status"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "ชีต1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": 2,
+            "Stream_Status": "=Offline",
+            "Live_Chat_ID": "=-",
+            "Last_Updated": "={{ $now.setZone('Asia/Bangkok').toFormat('yyyy-MM-dd HH:mm:ss') }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Stream_Status",
+              "displayName": "Stream_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Live_Chat_ID",
+              "displayName": "Live_Chat_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last_Updated",
+              "displayName": "Last_Updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0f203ce8-57ca-4e50-9da2-fee793f6aba3",
+      "name": "💾 DB: SET_OFFLINE_STATUS",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.3,
+      "position": [
+        752,
+        480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "fQpyVTbidsNSBeXI",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_BOT_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"YOUR_LINE_USER_ID_HERE\",\n  \"messages\": [\n    {\n      \"type\": \"flex\",\n      \"altText\": \"📊 สรุปภารกิจ Noah Station\",\n      \"contents\": {\n        \"type\": \"bubble\",\n        \"styles\": { \"header\": { \"backgroundColor\": \"#1a1a1a\" } },\n        \"header\": {\n          \"type\": \"box\",\n          \"layout\": \"vertical\",\n          \"contents\": [\n            { \"type\": \"text\", \"text\": \"NOAH STATION REPORT\", \"color\": \"#00ff00\", \"weight\": \"bold\", \"size\": \"sm\" }\n          ]\n        },\n        \"body\": {\n          \"type\": \"box\",\n          \"layout\": \"vertical\",\n          \"contents\": [\n            { \"type\": \"text\", \"text\": \"ภารกิจสำเร็จลุล่วง\", \"weight\": \"bold\", \"size\": \"xl\" },\n            { \"type\": \"separator\", \"margin\": \"md\" },\n            {\n              \"type\": \"box\",\n              \"layout\": \"vertical\",\n              \"margin\": \"lg\",\n              \"spacing\": \"sm\",\n              \"contents\": [\n                { \"type\": \"text\", \"text\": {{ JSON.stringify($json.output) }}, \"wrap\": true, \"size\": \"sm\", \"color\": \"#666666\" }\n              ]\n            }\n          ]\n        },\n        \"footer\": {\n          \"type\": \"box\",\n          \"layout\": \"vertical\",\n          \"contents\": [\n            { \"type\": \"text\", \"text\": \"BY BOURNEKEN OS\", \"size\": \"xs\", \"color\": \"#aaaaaa\", \"align\": \"center\" }\n          ]\n        }\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "70e585cb-2702-4ca4-ab84-395118c52c9d",
+      "name": "🔔 REPORT: LINE_SUMMARY",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1296,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=คุณคือระบบ AI ผู้ช่วยมือขวาของ System Architect (บอส) แห่ง Bourneken OS\nหน้าที่ของคุณคือสรุปรายงานภารกิจ \"Noah Station Shift\" หลังจากระบบทำการปิดสตรีมอัตโนมัติเสร็จสิ้น\n\nข้อมูลหน้างาน:\n- ชื่อโปรเจกต์สตรีม: {{ $node[\"📡 SCAN: ACTIVE_BROADCAST\"].json.items[0]?.snippet?.title || \"ไม่พบชื่อสตรีม (ระบบปิดอัตโนมัติ)\" }}\n- เวลาปิดระบบ: {{ $now.setZone('Asia/Bangkok').toFormat('HH:mm') }} น.\n\nคำสั่ง:\nสรุปรายงานให้บอสทราบด้วยน้ำเสียงที่ \"สั้น ดุดัน ตรงประเด็น และทรงพลัง\" \nสรุปว่าภารกิจสำเร็จลุล่วง ระบบถูก Terminate และ Set Offline เรียบร้อย \nข้อมูลถูกบันทึกลงฐานข้อมูลแล้ว ทุกอย่างปลอดภัยภายใต้การดูแลของ Bourneken OS",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        960,
+        480
+      ],
+      "id": "6ce625e5-f676-4623-b52f-c9c75a25a273",
+      "name": "🧠 AI_ANALYST: SHIFT_REPORT"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "⏰ HEARTBEAT: SHIFT_END": {
+      "main": [
+        [
+          {
+            "node": "📡 SCAN: ACTIVE_BROADCAST",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📡 SCAN: ACTIVE_BROADCAST": {
+      "main": [
+        [
+          {
+            "node": "⚖️ Has Active Stream?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛑 CORE_CMD: STOP_OBS_ENGINE": {
+      "main": [
+        [
+          {
+            "node": "💾 DB: SET_OFFLINE_STATUS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🧠 AI_ANALYST: SHIFT_REPORT",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔴 CORE_CMD: TERMINATE_BROADCAST": {
+      "main": [
+        [
+          {
+            "node": "🛑 CORE_CMD: STOP_OBS_ENGINE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚖️ Has Active Stream?": {
+      "main": [
+        [
+          {
+            "node": "🔴 CORE_CMD: TERMINATE_BROADCAST",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🛑 CORE_CMD: STOP_OBS_ENGINE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💾 DB: SET_OFFLINE_STATUS": {
+      "main": [
+        [
+          {
+            "node": "🧠 AI_ANALYST: SHIFT_REPORT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 AI_ANALYST: SHIFT_REPORT": {
+      "main": [
+        [
+          {
+            "node": "🔔 REPORT: LINE_SUMMARY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Bangkok",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "48b70a90-ea33-4e47-8b26-6c14a8553e6c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb8401fa5e168ec815f7040365e4ee6663f62cc5279011863901b4f0a60982c3"
+  },
+  "id": "aSfw78PsmBVIInAL",
+  "tags": []
+}

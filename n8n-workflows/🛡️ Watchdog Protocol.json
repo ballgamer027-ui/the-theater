@@ -1,0 +1,603 @@
+{
+  "name": "🛡️ Watchdog Protocol",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_BOT_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"YOUR_LINE_USER_ID_HERE\",\n  \"messages\": [\n    {\n      \"type\": \"flex\",\n      \"altText\": \"⚠️ STREAM_RECOVERY: IN_PROGRESS\",\n      \"contents\": {\n        \"type\": \"bubble\",\n        \"styles\": { \"header\": { \"backgroundColor\": \"#ffaa00\" } },\n        \"header\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [{ \"type\": \"text\", \"text\": \"WATCHDOG CRITICAL ALERT\", \"color\": \"#000000\", \"weight\": \"bold\", \"size\": \"sm\" }]\n        },\n        \"body\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [\n            { \"type\": \"text\", \"text\": \"⚠️ ตรวจพบสตรีมขัดข้อง\", \"weight\": \"bold\", \"size\": \"lg\" },\n            { \"type\": \"text\", \"text\": \"กำลังดำเนินการรีเซ็ตระบบอัตโนมัติ\", \"size\": \"xs\", \"color\": \"#666666\" },\n            { \"type\": \"separator\", \"margin\": \"md\" },\n            {\n              \"type\": \"box\", \"layout\": \"vertical\", \"margin\": \"lg\", \"spacing\": \"sm\",\n              \"contents\": [\n                { \"type\": \"text\", \"text\": \"บอสไปรีเซ็ตหน้า Studio รอเลยครับ\", \"wrap\": true, \"size\": \"sm\", \"weight\": \"bold\" },\n                { \"type\": \"text\", \"text\": \"สถานะ: กำลังล้าง Session เก่า...\", \"size\": \"xs\", \"color\": \"#ff0000\" }\n              ]\n            }\n          ]\n        },\n        \"footer\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [{ \"type\": \"text\", \"text\": \"EST. TIME: 3 MINS\", \"size\": \"xs\", \"color\": \"#aaaaaa\", \"align\": \"center\" }]\n        }\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "0235b766-08ea-4069-95bb-2bd64545933a",
+      "name": "📢 ALERTS: REBOOT_IN_PROGRESS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        80,
+        -240
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "95c4890a-d05f-4bfd-a106-2bf48b4e1d63",
+      "name": "📡 OBS: CHECK_STREAM_STATUS",
+      "type": "@mashgizmo/n8n-nodes-obs-websocket.obsWebsocket",
+      "typeVersion": 1,
+      "position": [
+        -784,
+        -352
+      ],
+      "credentials": {
+        "obsWebsocketApi": {
+          "id": "YdJyw9KTuIlfAvZ4",
+          "name": "OBS WebSocket account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/liveBroadcasts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "status"
+            },
+            {
+              "name": "broadcastStatus",
+              "value": "active"
+            },
+            {
+              "name": "broadcastType",
+              "value": "all"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cde1e179-7f43-4ad7-bca5-0d1159575eba",
+      "name": "📡 SCAN_BROADCAST_INTEGRITY1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -592,
+        -352
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "3Rn4AIhA9WNGXQHS",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $node[\"📡 OBS: CHECK_STREAM_STATUS\"].json.outputActive || $node[\"📡 OBS: CHECK_STREAM_STATUS\"].json.streaming ? true : false }}",
+              "value2": true
+            }
+          ],
+          "number": [
+            {
+              "value1": "={{ $json.items ? $json.items.length : 0 }}",
+              "operation": "larger"
+            }
+          ]
+        }
+      },
+      "id": "c4cee8d1-65ea-44f1-9bfc-50a9df742e12",
+      "name": "⚖️ ANALYZING_SIGNAL_STATE1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        -352
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "minutes"
+      },
+      "id": "696110ac-38f7-4a85-8b5f-605d8d69bb9f",
+      "name": "⏳ COOLDOWN: PURGE_GHOST_SESSION1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        304,
+        -240
+      ],
+      "webhookId": "ea9587b5-d708-4e0a-9052-7f8a3ff67121"
+    },
+    {
+      "parameters": {
+        "operation": "start"
+      },
+      "id": "a5b09aeb-e490-418a-a602-0d82df3006d8",
+      "name": "▶️ CORE_CMD: REVIVE_SEQUENCE1",
+      "type": "@mashgizmo/n8n-nodes-obs-websocket.obsWebsocket",
+      "typeVersion": 1,
+      "position": [
+        528,
+        -240
+      ],
+      "credentials": {
+        "obsWebsocketApi": {
+          "id": "YdJyw9KTuIlfAvZ4",
+          "name": "OBS WebSocket account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_BOT_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"YOUR_LINE_USER_ID_HERE\",\n  \"messages\": [\n    {\n      \"type\": \"flex\",\n      \"altText\": \"✅ STREAM_RECOVERY: SUCCESS\",\n      \"contents\": {\n        \"type\": \"bubble\",\n        \"styles\": { \"header\": { \"backgroundColor\": \"#00ff00\" } },\n        \"header\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [{ \"type\": \"text\", \"text\": \"WATCHDOG RECOVERY SUCCESS\", \"color\": \"#000000\", \"weight\": \"bold\", \"size\": \"sm\" }]\n        },\n        \"body\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [\n            { \"type\": \"text\", \"text\": \"✅ ระบบกู้คืนสำเร็จ\", \"weight\": \"bold\", \"size\": \"lg\" },\n            { \"type\": \"separator\", \"margin\": \"md\" },\n            {\n              \"type\": \"box\", \"layout\": \"vertical\", \"margin\": \"lg\",\n              \"contents\": [\n                { \"type\": \"text\", \"text\": \"ปลุกสตรีมคืนชีพเรียบร้อยแล้วครับบอส!\", \"wrap\": true, \"size\": \"sm\" },\n                { \"type\": \"text\", \"text\": \"สถานะ: ONLINE (Nominal)\", \"size\": \"xs\", \"color\": \"#00aa00\", \"weight\": \"bold\", \"margin\": \"sm\" }\n              ]\n            }\n          ]\n        },\n        \"footer\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [{ \"type\": \"text\", \"text\": \"PROTECTED BY BOURNEKEN OS\", \"size\": \"xs\", \"color\": \"#aaaaaa\", \"align\": \"center\" }]\n        }\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "8d650278-0ff9-41e8-9ca9-80b15bad4cb6",
+      "name": "🔔 INCIDENT_REPORT: AUTO_HEALED1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2304,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 20,
+        "unit": "seconds"
+      },
+      "id": "684de5ac-42e0-469f-9c6f-337d0a939f8e",
+      "name": "⏳ Wait 20s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        736,
+        -240
+      ],
+      "webhookId": "23fc8e51-9cb4-47f3-affb-9e02a0efbaed"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/liveBroadcasts?part=snippet,status&mine=true",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "options": {}
+      },
+      "id": "72a534ee-5502-4499-a459-2d86ff294e40",
+      "name": "📥 Fetch Broadcast",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        944,
+        -240
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "3Rn4AIhA9WNGXQHS",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=คุณคือระบบของช่อง Noah Station\n\nข้อมูลล่าสุด:\nEP ปัจจุบัน = {{$node[\"📥 Fetch Broadcast\"].json.items[0].snippet.title}}\n\nหน้าที่:\n1. อ่าน EP ล่าสุดจากชื่อ\n2. เพิ่ม EP +0.5\n3. สร้าง TODAY MODE ใหม่\n\nกติกา:\n- ภาษาไทย\n- โทนลึกลับ อบอุ่น สงบ\n- TODAY MODE ไม่เกิน 7 คำ\n- ห้ามซ้ำบ่อย\n- ไม่ต้องเขียน description\n\nโครง Title:\nEP[เลขใหม่] 🔴 Living Lofi Server 🧬 โหมด: [TODAY MODE] | Noah Station\n\nตอบเป็น JSON เท่านั้น:\n{\n  \"title\": \"\",\n  \"todayMode\": \"\"\n}\n",
+        "options": {}
+      },
+      "id": "f37238d1-e2a8-42aa-bf03-c864f8e73ab3",
+      "name": "🧠 Generate Title & Description",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1360,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "id": "471605ed-d4d9-4390-b826-aab91baa0784",
+      "name": "OpenRouter Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        -48
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "Uv0TlyNY7O2GZEZi",
+          "name": "mac mini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output;\nlet parsed;\ntry {\n parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;\n} catch(e) {\n throw new Error('AI output not JSON');\n}\nreturn [{json:{ title: parsed.title, description: parsed.description }}];"
+      },
+      "id": "61354866-2974-4f24-8da1-4b8ae947e7a3",
+      "name": "🧩 Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ดึงชื่อคลิปเดิมจากโหนด YouTube\nconst currentTitle = $json.items[0]?.snippet?.title || \"\";\n\n// ใช้ Regex สกัดหาตัวเลขที่อยู่หลังคำว่า EP\nconst match = currentTitle.match(/EP\\s*(\\d+)/i);\nlet ep = parseInt(match ? match[1] : \"0\", 10);\n\n// บวก EP เพิ่มไป 1\nconst nextEP = isNaN(ep) ? 1 : ep + 1;\n\nreturn [{ \n  json: { \n    currentEP: nextEP, \n    oldTitle: currentTitle \n  } \n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        -240
+      ],
+      "id": "5afcd3d7-ca56-475f-987f-b6ba3fb7a1b7",
+      "name": "Generate Title"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/15 0-7 * * *"
+            }
+          ]
+        }
+      },
+      "id": "0dbd2970-27df-4de9-b610-0115fcf0ca5f",
+      "name": "⏱️ HEARTBEAT: 15m (Midnight-8AM)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1248,
+        -352
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "stop"
+      },
+      "type": "@mashgizmo/n8n-nodes-obs-websocket.obsWebsocket",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        -240
+      ],
+      "id": "12e1fc23-b5c2-41d2-93f7-6909bd25a28c",
+      "name": "🛑 CORE_CMD: TERMINATE_STRIKE1",
+      "credentials": {
+        "obsWebsocketApi": {
+          "id": "YdJyw9KTuIlfAvZ4",
+          "name": "OBS WebSocket account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://www.googleapis.com/youtube/v3/videos?part=snippet",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "snippet"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ \n  JSON.stringify({\n    \"id\": $node[\"📥 Fetch Broadcast\"].json.items[0].id,\n    \"snippet\": {\n      \"title\": $json.title,\n      \"description\": $node[\"📥 Fetch Broadcast\"].json.items[0].snippet.description,\n      \"categoryId\": \"10\"\n    }\n  }) \n}}\n",
+        "options": {}
+      },
+      "id": "82d26301-d0e1-4612-b8df-f9a99f903e80",
+      "name": "🚀 Update YouTube Metadata",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1904,
+        -240
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "3Rn4AIhA9WNGXQHS",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"snippet\": {\n    \"playlistId\": \"PLjf2e6WKhPS5DqPMdRi8jFjqd6myZVRz9\",\n    \"resourceId\": {\n      \"kind\": \"youtube#video\",\n      \"videoId\": \"{{ $node['📥 Fetch Broadcast'].json.items[0].id }}\"\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "8d6029c0-886e-46fe-b878-de80351dfd83",
+      "name": "📂 Add to Playlist",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2112,
+        -240
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "3Rn4AIhA9WNGXQHS",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -992,
+        -352
+      ],
+      "id": "06b59f07-5cf6-4838-8e2f-24c7df4e78f1",
+      "name": "Wait",
+      "webhookId": "532ab9c9-3fc3-4b6f-98f4-398e959ed68c"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "📢 ALERTS: REBOOT_IN_PROGRESS": {
+      "main": [
+        [
+          {
+            "node": "⏳ COOLDOWN: PURGE_GHOST_SESSION1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📡 OBS: CHECK_STREAM_STATUS": {
+      "main": [
+        [
+          {
+            "node": "📡 SCAN_BROADCAST_INTEGRITY1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📡 SCAN_BROADCAST_INTEGRITY1": {
+      "main": [
+        [
+          {
+            "node": "⚖️ ANALYZING_SIGNAL_STATE1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚖️ ANALYZING_SIGNAL_STATE1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "🛑 CORE_CMD: TERMINATE_STRIKE1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏳ COOLDOWN: PURGE_GHOST_SESSION1": {
+      "main": [
+        [
+          {
+            "node": "▶️ CORE_CMD: REVIVE_SEQUENCE1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "▶️ CORE_CMD: REVIVE_SEQUENCE1": {
+      "main": [
+        [
+          {
+            "node": "⏳ Wait 20s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏳ Wait 20s": {
+      "main": [
+        [
+          {
+            "node": "📥 Fetch Broadcast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Fetch Broadcast": {
+      "main": [
+        [
+          {
+            "node": "Generate Title",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Generate Title & Description": {
+      "main": [
+        [
+          {
+            "node": "🧩 Parse AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🧠 Generate Title & Description",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧩 Parse AI Output": {
+      "main": [
+        [
+          {
+            "node": "🚀 Update YouTube Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Title": {
+      "main": [
+        [
+          {
+            "node": "🧠 Generate Title & Description",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏱️ HEARTBEAT: 15m (Midnight-8AM)": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛑 CORE_CMD: TERMINATE_STRIKE1": {
+      "main": [
+        [
+          {
+            "node": "📢 ALERTS: REBOOT_IN_PROGRESS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🚀 Update YouTube Metadata": {
+      "main": [
+        [
+          {
+            "node": "📂 Add to Playlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📂 Add to Playlist": {
+      "main": [
+        [
+          {
+            "node": "🔔 INCIDENT_REPORT: AUTO_HEALED1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "📡 OBS: CHECK_STREAM_STATUS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Bangkok",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "c11c8a6a-5510-4e59-a3da-627b085b8ea6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb8401fa5e168ec815f7040365e4ee6663f62cc5279011863901b4f0a60982c3"
+  },
+  "id": "xvjNR7QSweVyBPQp",
+  "tags": []
+}

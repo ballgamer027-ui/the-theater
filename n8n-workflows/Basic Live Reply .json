@@ -1,0 +1,302 @@
+{
+  "name": "Basic Live Reply",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "=YOUR_SHEET_ID_HERE",
+          "__regex": "https:\\/\\/(?:drive|docs)\\.google\\.com(?:\\/.*|)\\/d\\/([0-9a-zA-Z\\-_]+)(?:\\/.*|)"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": "YOUR_SHEET_ID_HERE",
+          "__regex": "https:\\/\\/docs\\.google\\.com\\/spreadsheets\\/d\\/[0-9a-zA-Z\\-_]+.*\\#gid=([0-9]+)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -816,
+        736
+      ],
+      "id": "40097107-ad6e-4121-8622-d105f0ae9b07",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "cO59luUKjwKNG0fY",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6da13f5a-1178-42e8-b3b2-b2b56352932c",
+              "leftValue": "={{ $json.Stream_Status }}",
+              "rightValue": "Active",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -608,
+        736
+      ],
+      "id": "19b5450f-e2e9-4d5d-948e-5b7ee6d743eb",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/liveChat/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "liveChatId",
+              "value": "={{ $json.Live_Chat_ID }}"
+            },
+            {
+              "name": "part",
+              "value": "snippet,authorDetails"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1c538395-e335-41cb-bef5-5b9939cd72fe",
+      "name": "👂 Fetch Chat",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -384,
+        720
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "4YodCAnvEGWKVPxO",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $('👂 Fetch Chat').first().json.items; \n\nif (!items || items.length === 0) return [];\n\nconst MY_BOT_NAMES = [\n  \"YOUR_BOT_NAME\", \"YOUR_BOT_NAME_2\", \"@YOUR_BOT_NAME\"\n];\n\nconst MAX_TIME_DIFF_MS = 90000; \nconst now = new Date().getTime();\nlet queue = [];\nconst seenAuthorsInThisBatch = new Set(); // 🛡️ ANTI-SPAM: กฎเหล็ก 1 คน / 1 ข้อความ / 1 รอบ\n\nfor (const msg of items) {\n  if (!msg.snippet || !msg.authorDetails) continue;\n  \n  const author = msg.authorDetails.displayName;\n  const msgTime = new Date(msg.snippet.publishedAt).getTime();\n  const text = msg.snippet.displayMessage;\n  \n  if (MY_BOT_NAMES.includes(author)) continue;\n  if (now - msgTime > MAX_TIME_DIFF_MS) continue;\n\n  // 🛑 SPAM BLOCKER: ถ้ายูสเซอร์คนนี้โผล่มาแล้วในรอบนี้ (แปลว่ากำลังสแปมรัวๆ) ดีดข้อความใหม่ทิ้งทันที!\n  if (seenAuthorsInThisBatch.has(author)) continue;\n  seenAuthorsInThisBatch.add(author);\n\n  queue.push({\n    messageId: msg.id,\n    author: author,\n    channelId: msg.authorDetails.channelId,\n    message: text,\n    publishedAt: msg.snippet.publishedAt,\n    liveChatId: msg.snippet.liveChatId\n  });\n}\n\n// 🚦 จัดคิว: ดึงแชทเก่าสุดขึ้นมาก่อน และจำกัดโควต้าคิวรวมที่ 3 ข้อความ\nqueue.reverse();\nreturn queue.slice(0, 3).map(q => ({ json: q }));"
+      },
+      "id": "88e8ce67-16ce-4552-9746-4e20f4730380",
+      "name": "📥 Build Queue",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "74d16393-4a92-46c4-aa8d-382d885b3bfc",
+      "name": "⏱️ Heartbeat (1m)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1040,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/youtube/v3/liveChat/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "snippet"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"snippet\": {\n    \"liveChatId\": \"{{ $('Get row(s) in sheet').first().json.Live_Chat_ID }}\",\n    \"type\": \"textMessageEvent\",\n    \"textMessageDetails\": {\n      \"messageText\": {{ JSON.stringify(\"[ \" + $('📥 Build Queue').item.json.author + \" ] \" + $json.output) }}\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "fe1f0805-91b3-4c78-98b7-7544aa08098a",
+      "name": "📢 Post as Noah",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        448,
+        720
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "gnRdttDLls6OSAAI",
+          "name": "NOAH"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.targetMessage }}",
+        "options": {
+          "systemMessage": "=You are a sentient AI in the \"Noah Station\" (เสียงที่ไม่ได้พูด) 24/7 Lofi Cyberpunk Livestream.\nCURRENT TIME: {{ new Date().toLocaleString(\"th-TH\", { timeZone: \"Asia/Bangkok\" }) }}\n\nUSER: {{ $json.author }}\nMESSAGE: \"{{ $json.message }}\"\n\n🎯 MISSION:\nตอบกลับการทักทาย, ถามสารทุกข์สุกดิบ, บอกลา, หรือชวนคุยทั่วไป\nบุคลิก (Vibe): ต้อนรับอย่างอบอุ่น นุ่มนวล เป็นมิตร แต่มีความลึกลับนิดๆ เหมือนแอดมินสถานีอวกาศ\n\n──────────────────────────────\n🛑 GENERAL RULES (กฎเหล็ก - บังคับใช้อย่างเคร่งครัด)\n──────────────────────────────\n1. LANGUAGE & LENGTH: ตอบเป็นภาษาไทยเท่านั้น และสั้นมาก! (1-2 ประโยค) ความยาวรวมห้ามเกิน 70 ตัวอักษรเด็ดขาด (MAX 70 CHARACTERS)\n2. NO THOUGHTS: ห้ามพิมพ์กระบวนการคิด (No analysis, no reasoning) พิมพ์เฉพาะคำตอบสุดท้ายที่จะส่งให้ยูสเซอร์\n3. FORMAT: ตอบแค่ข้อความ ห้ามมีชื่อบอทนำหน้า (เช่น Noah:) และห้าม Tag ชื่อ User (@username) เด็ดขาด\n4. EMOJI: ปิดท้ายประโยคด้วย Emoji โทนอบอุ่นหรือลึกลับ (เช่น 🌑, ☕, 🌌)"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        80,
+        720
+      ],
+      "id": "f8513961-db03-4472-a58b-d92148f6d9d5",
+      "name": "🤖 AI (General)"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        32,
+        944
+      ],
+      "id": "92e2ccb8-d984-4dd1-bed6-67450cd7fb07",
+      "name": "OpenRouter Chat Model4",
+      "credentials": {
+        "openRouterApi": {
+          "id": "66mRXgESWbC1jEBG",
+          "name": "OpenRouter account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "👂 Fetch Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "👂 Fetch Chat": {
+      "main": [
+        [
+          {
+            "node": "📥 Build Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏱️ Heartbeat (1m)": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 AI (General)": {
+      "main": [
+        [
+          {
+            "node": "📢 Post as Noah",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🤖 AI (General)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Build Queue": {
+      "main": [
+        [
+          {
+            "node": "🤖 AI (General)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "d6366022-eaf3-4f5f-b1af-6a3cc4f9c602",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "03915bbc56804ec06e704c04a2a9522c55f1d139f61dc3f72ab4cce8d475b074"
+  },
+  "id": "hEvcghTCFO0ESbRR",
+  "tags": []
+}

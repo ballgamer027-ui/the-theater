@@ -1,0 +1,368 @@
+{
+    "name": "💳 Theater Payment System — Stripe → Supabase",
+    "nodes": [
+        {
+            "parameters": {
+                "events": [
+                    "checkout.session.completed"
+                ]
+            },
+            "id": "stripe-trigger",
+            "name": "📡 Stripe Trigger",
+            "type": "n8n-nodes-base.stripeTrigger",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ],
+            "credentials": {
+                "stripeApi": {
+                    "id": "noah station",
+                    "name": "noah station"
+                }
+            },
+            "notes": "รับ event จาก Stripe เมื่อจ่ายเงินสำเร็จ"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "userId",
+                            "name": "userId",
+                            "value": "={{ $json.data.object.metadata.userId }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "projectId",
+                            "name": "projectId",
+                            "value": "={{ $json.data.object.metadata.projectId }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "tier",
+                            "name": "tier",
+                            "value": "={{ $json.data.object.metadata.tier }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "email",
+                            "name": "email",
+                            "value": "={{ $json.data.object.customer_email }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "amount",
+                            "name": "amount",
+                            "value": "={{ $json.data.object.amount_total }}",
+                            "type": "number"
+                        },
+                        {
+                            "id": "currency",
+                            "name": "currency",
+                            "value": "={{ $json.data.object.currency }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "paymentId",
+                            "name": "paymentId",
+                            "value": "={{ $json.data.object.payment_intent }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "sessionId",
+                            "name": "sessionId",
+                            "value": "={{ $json.data.object.id }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "customerId",
+                            "name": "customerId",
+                            "value": "={{ $json.data.object.customer }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "extract-data",
+            "name": "🔍 Extract Purchase Data",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                480,
+                300
+            ],
+            "notes": "ดึง userId, projectId, tier, email, amount จาก Stripe"
+        },
+        {
+            "parameters": {
+                "operation": "create",
+                "tableId": "purchases",
+                "fieldsToSend": {
+                    "fieldValues": [
+                        {
+                            "fieldName": "user_id",
+                            "fieldValue": "={{ $json.userId }}"
+                        },
+                        {
+                            "fieldName": "project_id",
+                            "fieldValue": "={{ $json.projectId }}"
+                        },
+                        {
+                            "fieldName": "tier",
+                            "fieldValue": "={{ $json.tier }}"
+                        },
+                        {
+                            "fieldName": "stripe_payment_id",
+                            "fieldValue": "={{ $json.paymentId }}"
+                        },
+                        {
+                            "fieldName": "stripe_checkout_session_id",
+                            "fieldValue": "={{ $json.sessionId }}"
+                        },
+                        {
+                            "fieldName": "amount",
+                            "fieldValue": "={{ $json.amount }}"
+                        },
+                        {
+                            "fieldName": "currency",
+                            "fieldValue": "={{ $json.currency }}"
+                        },
+                        {
+                            "fieldName": "status",
+                            "fieldValue": "completed"
+                        }
+                    ]
+                }
+            },
+            "id": "save-purchase",
+            "name": "💾 Save Purchase → Supabase",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                710,
+                200
+            ],
+            "notes": "บันทึกการซื้อลงตาราง purchases (Create row)"
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "tableId": "profiles",
+                "matchType": "id",
+                "id": "={{ $json.userId }}",
+                "fieldsToSend": {
+                    "fieldValues": [
+                        {
+                            "fieldName": "stripe_customer_id",
+                            "fieldValue": "={{ $json.customerId }}"
+                        }
+                    ]
+                }
+            },
+            "id": "update-profile",
+            "name": "👤 Update Profile",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                710,
+                420
+            ],
+            "notes": "อัปเดต Stripe Customer ID ในตาราง profiles"
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "sheetId": {
+                    "value": ""
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "Timestamp": "={{ $now.toISO() }}",
+                        "Email": "={{ $('🔍 Extract Purchase Data').item.json.email }}",
+                        "Project": "={{ $('🔍 Extract Purchase Data').item.json.projectId }}",
+                        "Tier": "={{ $('🔍 Extract Purchase Data').item.json.tier }}",
+                        "Amount_THB": "={{ $('🔍 Extract Purchase Data').item.json.amount / 100 }}",
+                        "Payment_ID": "={{ $('🔍 Extract Purchase Data').item.json.paymentId }}",
+                        "Status": "completed"
+                    }
+                },
+                "options": {}
+            },
+            "id": "log-to-sheet",
+            "name": "📊 Log → Google Sheet",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                960,
+                200
+            ],
+            "notes": "บันทึกรายการขายลง Google Sheet"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "vip-check",
+                            "leftValue": "={{ $('🔍 Extract Purchase Data').item.json.tier }}",
+                            "rightValue": "vip",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "check-vip",
+            "name": "👑 VIP ?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                960,
+                420
+            ],
+            "notes": "เช็คว่าเป็น VIP → ส่ง alert พิเศษ"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.line.me/v2/bot/message/push",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Authorization",
+                            "value": "Bearer PUT_YOUR_LINE_BOT_TOKEN_HERE"
+                        },
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"to\": \"YOUR_LINE_USER_ID_HERE\",\n  \"messages\": [\n    {\n      \"type\": \"flex\",\n      \"altText\": \"👑 VIP PURCHASE ALERT\",\n      \"contents\": {\n        \"type\": \"bubble\",\n        \"size\": \"kilo\",\n        \"styles\": { \"header\": { \"backgroundColor\": \"#ffaa00\" } },\n        \"header\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [{ \"type\": \"text\", \"text\": \"👑 VIP PURCHASE ALERT\", \"color\": \"#000000\", \"weight\": \"bold\", \"size\": \"sm\" }]\n        },\n        \"body\": {\n          \"type\": \"box\", \"layout\": \"vertical\", \"spacing\": \"md\",\n          \"contents\": [\n            { \"type\": \"text\", \"text\": \"✨ ผู้ใช้ VIP สมัครสมาชิก!\", \"weight\": \"bold\", \"size\": \"md\", \"wrap\": true },\n            { \"type\": \"separator\", \"margin\": \"md\" },\n            {\n              \"type\": \"box\", \"layout\": \"vertical\", \"spacing\": \"sm\",\n              \"contents\": [\n                {\n                  \"type\": \"box\", \"layout\": \"baseline\", \"spacing\": \"sm\",\n                  \"contents\": [\n                    { \"type\": \"text\", \"text\": \"อีเมล\", \"color\": \"#aaaaaa\", \"size\": \"sm\", \"flex\": 2 },\n                    { \"type\": \"text\", \"text\": \"{{ $('🔍 Extract Purchase Data').item.json.email }}\", \"wrap\": true, \"size\": \"sm\", \"color\": \"#666666\", \"flex\": 5, \"weight\": \"bold\" }\n                  ]\n                },\n                {\n                  \"type\": \"box\", \"layout\": \"baseline\", \"spacing\": \"sm\",\n                  \"contents\": [\n                    { \"type\": \"text\", \"text\": \"แพ็กเกจ\", \"color\": \"#aaaaaa\", \"size\": \"sm\", \"flex\": 2 },\n                    { \"type\": \"text\", \"text\": \"{{ $('🔍 Extract Purchase Data').item.json.tier }}\", \"wrap\": true, \"color\": \"#666666\", \"size\": \"sm\", \"flex\": 5, \"weight\": \"bold\" }\n                  ]\n                },\n                {\n                  \"type\": \"box\", \"layout\": \"baseline\", \"spacing\": \"sm\",\n                  \"contents\": [\n                    { \"type\": \"text\", \"text\": \"ยอดเงิน\", \"color\": \"#aaaaaa\", \"size\": \"sm\", \"flex\": 2 },\n                    { \"type\": \"text\", \"text\": \"{{ $('🔍 Extract Purchase Data').item.json.amount / 100 }} THB\", \"wrap\": true, \"size\": \"sm\", \"color\": \"#ffaa00\", \"flex\": 5, \"weight\": \"bold\" }\n                  ]\n                }\n              ]\n            },\n            { \"type\": \"separator\", \"margin\": \"md\" },\n            { \"type\": \"text\", \"text\": \"⚡ ด่วน: ต้อง Remote Setup ให้ลูกค้า!\", \"size\": \"sm\", \"color\": \"#ff0000\", \"weight\": \"bold\", \"wrap\": true }\n          ]\n        },\n        \"footer\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [{ \"type\": \"text\", \"text\": \"ACTION REQUIRED NOW\", \"size\": \"xs\", \"color\": \"#aaaaaa\", \"align\": \"center\" }]\n        }\n      }\n    }\n  ]\n}",
+                "options": {}
+            },
+            "id": "notify-vip",
+            "name": "🚨 Alert VIP!",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                1200,
+                340
+            ],
+            "notes": "แจ้งเตือน VIP (LINE Messaging API)"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.line.me/v2/bot/message/push",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Authorization",
+                            "value": "Bearer PUT_YOUR_LINE_BOT_TOKEN_HERE"
+                        },
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"to\": \"YOUR_LINE_USER_ID_HERE\",\n  \"messages\": [\n    {\n      \"type\": \"flex\",\n      \"altText\": \"💳 NEW PURCHASE\",\n      \"contents\": {\n        \"type\": \"bubble\",\n        \"size\": \"kilo\",\n        \"styles\": { \"header\": { \"backgroundColor\": \"#1dbf73\" } },\n        \"header\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [{ \"type\": \"text\", \"text\": \"💳 NEW PURCHASE\", \"color\": \"#ffffff\", \"weight\": \"bold\", \"size\": \"sm\" }]\n        },\n        \"body\": {\n          \"type\": \"box\", \"layout\": \"vertical\", \"spacing\": \"md\",\n          \"contents\": [\n            { \"type\": \"text\", \"text\": \"รายการสั่งซื้อใหม่ในระบบ\", \"weight\": \"bold\", \"size\": \"md\", \"wrap\": true },\n            { \"type\": \"separator\", \"margin\": \"md\" },\n            {\n              \"type\": \"box\", \"layout\": \"vertical\", \"spacing\": \"sm\",\n              \"contents\": [\n                {\n                  \"type\": \"box\", \"layout\": \"baseline\", \"spacing\": \"sm\",\n                  \"contents\": [\n                    { \"type\": \"text\", \"text\": \"โปรเจกต์\", \"color\": \"#aaaaaa\", \"size\": \"sm\", \"flex\": 2 },\n                    { \"type\": \"text\", \"text\": \"{{ $('🔍 Extract Purchase Data').item.json.projectId }}\", \"wrap\": true, \"size\": \"sm\", \"color\": \"#666666\", \"flex\": 5, \"weight\": \"bold\" }\n                  ]\n                },\n                {\n                  \"type\": \"box\", \"layout\": \"baseline\", \"spacing\": \"sm\",\n                  \"contents\": [\n                    { \"type\": \"text\", \"text\": \"แพ็กเกจ\", \"color\": \"#aaaaaa\", \"size\": \"sm\", \"flex\": 2 },\n                    { \"type\": \"text\", \"text\": \"{{ $('🔍 Extract Purchase Data').item.json.tier }}\", \"wrap\": true, \"color\": \"#666666\", \"size\": \"sm\", \"flex\": 5, \"weight\": \"bold\" }\n                  ]\n                },\n                {\n                  \"type\": \"box\", \"layout\": \"baseline\", \"spacing\": \"sm\",\n                  \"contents\": [\n                    { \"type\": \"text\", \"text\": \"อีเมล\", \"color\": \"#aaaaaa\", \"size\": \"sm\", \"flex\": 2 },\n                    { \"type\": \"text\", \"text\": \"{{ $('🔍 Extract Purchase Data').item.json.email }}\", \"wrap\": true, \"size\": \"sm\", \"color\": \"#666666\", \"flex\": 5, \"weight\": \"bold\" }\n                  ]\n                },\n                {\n                  \"type\": \"box\", \"layout\": \"baseline\", \"spacing\": \"sm\",\n                  \"contents\": [\n                    { \"type\": \"text\", \"text\": \"ยอดเงิน\", \"color\": \"#aaaaaa\", \"size\": \"sm\", \"flex\": 2 },\n                    { \"type\": \"text\", \"text\": \"{{ $('🔍 Extract Purchase Data').item.json.amount / 100 }} THB\", \"wrap\": true, \"size\": \"sm\", \"color\": \"#1dbf73\", \"flex\": 5, \"weight\": \"bold\" }\n                  ]\n                }\n              ]\n            }\n          ]\n        },\n        \"footer\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [{ \"type\": \"text\", \"text\": \"PAYMENT COMPLETED\", \"size\": \"xs\", \"color\": \"#aaaaaa\", \"align\": \"center\" }]\n        }\n      }\n    }\n  ]\n}",
+                "options": {}
+            },
+            "id": "notify-normal",
+            "name": "💬 Notify ขายได้!",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                1200,
+                500
+            ],
+            "notes": "แจ้งเตือนปกติ (LINE Messaging API)"
+        }
+    ],
+    "connections": {
+        "📡 Stripe Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "🔍 Extract Purchase Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🔍 Extract Purchase Data": {
+            "main": [
+                [
+                    {
+                        "node": "💾 Save Purchase → Supabase",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "👤 Update Profile",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "💾 Save Purchase → Supabase": {
+            "main": [
+                [
+                    {
+                        "node": "📊 Log → Google Sheet",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "👑 VIP ?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "👑 VIP ?": {
+            "main": [
+                [
+                    {
+                        "node": "🚨 Alert VIP!",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "💬 Notify ขายได้!",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "settings": {
+        "executionOrder": "v1"
+    }
+}

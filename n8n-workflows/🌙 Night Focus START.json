@@ -1,0 +1,363 @@
+{
+  "name": "🌙 Night Focus START",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 0 * * *"
+            }
+          ]
+        }
+      },
+      "id": "322d0470-ae49-44e7-98c8-5bcc62d1a1a8",
+      "name": "⏰ Start Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 20,
+        "unit": "seconds"
+      },
+      "id": "cdf8dcef-3c06-4ecb-b43b-533d58034813",
+      "name": "⏳ Wait 20s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -32
+      ],
+      "webhookId": "23fc8e51-9cb4-47f3-affb-9e02a0efbaed"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/liveBroadcasts?part=snippet,status&mine=true",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "options": {}
+      },
+      "id": "c842802c-0f14-4d55-b0f3-1d32d838691b",
+      "name": "📥 Fetch Broadcast",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        448,
+        -32
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "3Rn4AIhA9WNGXQHS",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "==คุณคือระบบของช่อง Noah Station\n\nข้อมูลระบบ ณ ปัจจุบัน:\n- เวลาเปิดสถานี: {{ $now.setZone('Asia/Bangkok').toFormat('HH:mm') }} น.\n- ชื่อ EP เดิม: {{$node[\"📥 Fetch Broadcast\"].json.items[0].snippet.title}}\n\nหน้าที่:\n1. อ่าน EP ล่าสุดจากชื่อ แล้วเพิ่ม EP +1\n2. สร้าง TODAY MODE ใหม่ \n\nกติกาเหล็ก (Strict Rules):\n- ภาษาไทย โทนลึกลับ อบอุ่น สงบ Cyberpunk นิดๆ\n- TODAY MODE ไม่เกิน 7 คำ\n- ⚠️ บังคับ: บรรยากาศของคำต้องสอดคล้องกับ \"เวลาเปิดสถานี\" ณ ปัจจุบันเท่านั้น (ตีความจากเวลา {{ $now.setZone('Asia/Bangkok').toFormat('HH:mm') }} น.)\n- ⚠️ บังคับ: ห้ามลอกเลียนแบบหรือยึดติดกับสภาพอากาศ/เวลา จากชื่อ EP เดิมเด็ดขาด ให้ยึดเวลาปัจจุบันเป็นศูนย์กลาง\n- ห้ามซ้ำบ่อย ไม่ต้องเขียน description\n\nโครง Title:\nEP[เลขใหม่] 🔴 Living Lofi Server 🧬 โหมด: [TODAY MODE] | Noah Station\n\nตอบเป็น JSON เท่านั้น:\n{\n  \"title\": \"\",\n  \"todayMode\": \"\"\n}\n",
+        "options": {}
+      },
+      "id": "98c592c3-e9b5-476b-892f-eefedf635632",
+      "name": "🧠 Generate Title & Description",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        864,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $json.output;\n\n// 1. สกัดแท็ก ```json และ ``` ที่ AI ชอบแถมมาทิ้งไป\nif (typeof raw === 'string') {\n    raw = raw.replace(/```json/gi, '').replace(/```/g, '').trim();\n}\n\nlet parsed;\ntry {\n  parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;\n} catch(e) {\n  throw new Error('AI output not JSON (หลังจากพยายามตัด Markdown แล้ว)');\n}\n\n// 2. ดึงค่าจาก todayMode มาใส่แทน เพราะ AI ไม่ได้ส่ง description มา\nreturn [{\n    json: { \n        title: parsed.title, \n        description: parsed.todayMode \n    }\n}];"
+      },
+      "id": "8962b849-87bd-4e0e-b479-59b40f1ad20c",
+      "name": "🧩 Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://www.googleapis.com/youtube/v3/videos?part=snippet",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "snippet"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ \n  JSON.stringify({\n    \"id\": $node[\"📥 Fetch Broadcast\"].json.items[0].id,\n    \"snippet\": {\n      \"title\": $json.title,\n      \"description\": $node[\"📥 Fetch Broadcast\"].json.items[0].snippet.description,\n      \"categoryId\": \"10\"\n    }\n  }) \n}}\n",
+        "options": {}
+      },
+      "id": "5979c57e-1986-4cd7-a0bb-162ba053b165",
+      "name": "🚀 Update YouTube Metadata",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1392,
+        -32
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "3Rn4AIhA9WNGXQHS",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const ep = parseInt($json.currentEP, 10);\nconst nextEP = isNaN(ep) ? 1 : ep + 1;\n\nreturn [\n  {\n    json: {\n      currentEP: nextEP\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        -32
+      ],
+      "id": "0cbd362a-48a2-4328-9915-83483fa9075c",
+      "name": "Generate Title"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_BOT_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"YOUR_LINE_USER_ID_HERE\",\n  \"messages\": [\n    {\n      \"type\": \"flex\",\n      \"altText\": \"🚀 SYSTEM_STARTUP: ONLINE\",\n      \"contents\": {\n        \"type\": \"bubble\",\n        \"styles\": { \"header\": { \"backgroundColor\": \"#007bff\" } },\n        \"header\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [\n            { \"type\": \"text\", \"text\": \"BOURNEKEN OS STARTUP\", \"color\": \"#ffffff\", \"weight\": \"bold\", \"size\": \"sm\" }\n          ]\n        },\n        \"body\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [\n            { \"type\": \"text\", \"text\": \"🚀 เริ่มภารกิจใหม่\", \"weight\": \"bold\", \"size\": \"xl\", \"color\": \"#007bff\" },\n            { \"type\": \"separator\", \"margin\": \"md\" },\n            {\n              \"type\": \"box\", \"layout\": \"vertical\", \"margin\": \"lg\", \"spacing\": \"sm\",\n              \"contents\": [\n                { \"type\": \"text\", \"text\": \"ผมกดเริ่มสตรีมแล้วบอส\", \"weight\": \"bold\", \"size\": \"md\", \"wrap\": true },\n                { \"type\": \"text\", \"text\": \"สถานะ: กำลังแพร่ภาพ (LIVE)\", \"size\": \"xs\", \"color\": \"#00aa00\", \"weight\": \"bold\" },\n                { \"type\": \"text\", \"text\": \"AI ประมวลผล Metadata เรียบร้อยแล้วครับ\", \"size\": \"xs\", \"color\": \"#aaaaaa\" }\n              ]\n            }\n          ]\n        },\n        \"footer\": {\n          \"type\": \"box\", \"layout\": \"vertical\",\n          \"contents\": [\n            { \"type\": \"text\", \"text\": \"POWERED BY BOURNEKEN OS\", \"size\": \"xs\", \"color\": \"#aaaaaa\", \"align\": \"center\" }\n          ]\n        }\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "8a162026-b3e3-469b-8208-15e857c318c4",
+      "name": "📲 STATUS_REPORT: Start Live",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1792,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"snippet\": {\n    \"playlistId\": \"PLjf2e6WKhPS5DqPMdRi8jFjqd6myZVRz9\",\n    \"resourceId\": {\n      \"kind\": \"youtube#video\",\n      \"videoId\": \"{{ $node['📥 Fetch Broadcast'].json.items[0].id }}\"\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "6a73bdd2-0572-46c0-95e9-dcca68539820",
+      "name": "📂 Add to Playlist",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1600,
+        -32
+      ],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "3Rn4AIhA9WNGXQHS",
+          "name": "Bourneken os"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        784,
+        160
+      ],
+      "id": "19fbfafc-8008-4bbd-8abb-21630989dbf5",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Uv0TlyNY7O2GZEZi",
+          "name": "mac mini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "start"
+      },
+      "type": "@mashgizmo/n8n-nodes-obs-websocket.obsWebsocket",
+      "typeVersion": 1,
+      "position": [
+        48,
+        -32
+      ],
+      "id": "7df3e5b4-025d-4230-99c4-af10f9b6f8f5",
+      "name": "📡 OBS Start Stream",
+      "credentials": {
+        "obsWebsocketApi": {
+          "id": "YdJyw9KTuIlfAvZ4",
+          "name": "OBS WebSocket account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "⏰ Start Schedule": {
+      "main": [
+        [
+          {
+            "node": "📡 OBS Start Stream",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏳ Wait 20s": {
+      "main": [
+        [
+          {
+            "node": "📥 Fetch Broadcast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Fetch Broadcast": {
+      "main": [
+        [
+          {
+            "node": "Generate Title",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Generate Title & Description": {
+      "main": [
+        [
+          {
+            "node": "🧩 Parse AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧩 Parse AI Output": {
+      "main": [
+        [
+          {
+            "node": "🚀 Update YouTube Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🚀 Update YouTube Metadata": {
+      "main": [
+        [
+          {
+            "node": "📂 Add to Playlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Title": {
+      "main": [
+        [
+          {
+            "node": "🧠 Generate Title & Description",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📂 Add to Playlist": {
+      "main": [
+        [
+          {
+            "node": "📲 STATUS_REPORT: Start Live",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🧠 Generate Title & Description",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📡 OBS Start Stream": {
+      "main": [
+        [
+          {
+            "node": "⏳ Wait 20s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Bangkok",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "cf05ffeb-ffc0-413f-8e44-54c47616379c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb8401fa5e168ec815f7040365e4ee6663f62cc5279011863901b4f0a60982c3"
+  },
+  "id": "TMvVDFzz11kF84rg",
+  "tags": []
+}

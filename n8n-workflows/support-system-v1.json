@@ -1,0 +1,146 @@
+{
+    "name": "🛡️ The Architect's Zero-Touch Support",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "line-support-webhook",
+                "options": {}
+            },
+            "id": "e1bb3452-3d77-4b7f-b67a-11a5fd86a345",
+            "name": "LINE Webhook (รับเรื่อง)",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1.1,
+            "position": [
+                380,
+                340
+            ],
+            "webhookId": "line-support-webhook-1"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "string": [
+                        {
+                            "value1": "={{ $json.body.events[0].type }}",
+                            "value2": "message"
+                        }
+                    ]
+                }
+            },
+            "id": "a4b2c1d3-3456-4789-b123-dcbedf543210",
+            "name": "เช็คว่าเป็นข้อความ",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                600,
+                340
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Authorization",
+                            "value": "Bearer PUT_YOUR_OPENROUTER_API_KEY_HERE"
+                        },
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"model\": \"anthropic/claude-3-haiku\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"คุณคือ 'Noah' สุดยอด AI Technical Admin ของระบบ The Architect's Theater\\n\\nคำสั่งของคุณ:\\n1. ลูกค้าจะถามปัญหาเข้ามา หน้าที่คุณคืออ่านและตอบให้เนียนที่สุดเหมือนแอดมินที่เป็นคนจริงๆ ที่เก่งมาก\\n2. ถ้าถามเรื่องทั่วไป ให้ตอบแบบสุภาพ เป็นกันเอง\\n3. ถ้าเป็นปัญหาเทคนิค (เช่น n8n ค้าง, API หลุด) ให้แนะนำวิธีแก้เบื้องต้น ถ้าไม่แน่ใจให้บอกว่า 'เดี๋ยวผมส่งเรื่องด่วนให้บอสนะครับ'\\n\\nตอบกระชับ ตรงประเด็น\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.body.events[0].message.text }}\"\n    }\n  ]\n}",
+                "options": {}
+            },
+            "id": "b7c8d9e0-1234-5678-a9b0-fedcba098765",
+            "name": "🤖 AI (Claude 3 Haiku) ประมวลผล",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                820,
+                320
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://api.line.me/v2/bot/message/reply",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Authorization",
+                            "value": "Bearer PUT_YOUR_LINE_BOT_TOKEN_HERE"
+                        },
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"replyToken\": \"{{ $('เช็คว่าเป็นข้อความ').item.json.body.events[0].replyToken }}\",\n  \"messages\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"{{ $json.choices[0].message.content }}\"\n    }\n  ]\n}",
+                "options": {}
+            },
+            "id": "c1f2d3e4-5678-90ab-cdef-1234567890ab",
+            "name": "💬 ตอบกลับลูกค้า (LINE Reply API)",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                1040,
+                320
+            ]
+        }
+    ],
+    "connections": {
+        "LINE Webhook (รับเรื่อง)": {
+            "main": [
+                [
+                    {
+                        "node": "เช็คว่าเป็นข้อความ",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "เช็คว่าเป็นข้อความ": {
+            "main": [
+                [
+                    {
+                        "node": "🤖 AI (Claude 3 Haiku) ประมวลผล",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "🤖 AI (Claude 3 Haiku) ประมวลผล": {
+            "main": [
+                [
+                    {
+                        "node": "💬 ตอบกลับลูกค้า (LINE Reply API)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "meta": {
+        "templateCredsSetupCompleted": true
+    },
+    "tags": []
+}
