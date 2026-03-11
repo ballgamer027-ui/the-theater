@@ -619,7 +619,15 @@ fi`,
             title: 'Failure Patterns & คู่มือแก้กรรม',
             shortDesc: 'อาการยอดฮิต และวิธีแก้ตลับเมตร 1-2-3',
             requiredTier: 'workflow',
-            description: 'รวมอาการพังยอดฮิตของระบบ Auto — API ล่ม, Token หมดอายุ, n8n ค้างจอขาว — พร้อมวิธีเชือดบั๊กสไตล์ Dark Architect'
+            description: 'รวมอาการพังยอดฮิตของระบบ Auto — API ล่ม, Token หมดอายุ, n8n ค้างจอขาว — พร้อมวิธีเชือดบั๊กสไตล์ Dark Architect',
+            techSpecs: {
+              issue: 'Google Token Expired',
+              solution: 'Re-authenticate credentials',
+              issue2: 'n8n RAM Leak',
+              solution2: 'PM2 auto-restart rule'
+            },
+            codeSnippet: `// 💡 คู่มือซ่อมฉุกเฉิน (เดี๋ยวบอสมาเติมของจริง)\n\n// อาการ 1: n8n ค้าง จอขาว\n// สาเหตุ: RAM เต็ม หรือ Process ผีดิบ\n// วิธีแก้: เปิด PowerShell แล้วรันคำสั่งนี้\npm2 restart n8n\n\n// อาการ 2: YouTube API หลุด\n// สาเหตุ: Token หมดอายุ 7 วัน\n// วิธีแก้: เข้า n8n -> Credentials -> Reconnect Google`,
+            codeLang: 'javascript'
           },
           {
             id: 'monetization',
@@ -627,7 +635,15 @@ fi`,
             title: 'Monetization & Scaling',
             shortDesc: 'วิธีทำเงินจากสถานีที่หลับไม่เป็น',
             requiredTier: 'vip',
-            description: 'ระบบเสร็จแล้ว แล้วเงินล่ะ? — วิธีเอาสถานีไปรับสปอนเซอร์, ดึงคนเข้า LINE OA ฟันกำไร, และโมเดลรับจ้างเปิดสถานีให้คนอื่น'
+            description: 'ระบบเสร็จแล้ว แล้วเงินล่ะ? — วิธีเอาสถานีไปรับสปอนเซอร์, ดึงคนเข้า LINE OA ฟันกำไร, และโมเดลรับจ้างเปิดสถานีให้คนอื่น',
+            techSpecs: {
+              model1: 'Sponsorship Placement',
+              model2: 'Lead Gen to LINE OA',
+              model3: 'Station-as-a-Service',
+              expected: 'Passive Income'
+            },
+            codeSnippet: `// 💡 โมเดลทำเงินจาก Noah Station (เดี๋ยวบอสมาเติม)\n\n# 1. รับ Sponsor วางโลโก้บน Live\n# เนื่องจาก Live รัน 24/7 = 720 ชั่วโมง/เดือน\n# สามารถขาย Ad Placement ให้แบรนด์ได้ในราคา x,xxx บาท/เดือน\n\n# 2. ดูดคนเข้า LINE OA\n# ให้ Neon (AI) แจกโค้ดลับในแชทให้คนแอด LINE\n# เปลี่ยน Viewers เป็น Lead เก็บไว้ทำ CRM\n\n# 3. รับจ้างเปิดสถานี (SaaS)\n# รับจ้างรันระบบให้ช่องคนอื่น เก็บรายเดือน`,
+            codeLang: 'markdown'
           },
           {
             id: "secret-bonus",
@@ -636,7 +652,15 @@ fi`,
             shortDesc: "ความลับสวรรค์ที่เฉพาะ VIP จะได้รู้",
             type: "architecture",
             requiredTier: "vip",
-            description: "นี่คือความลับสวรรค์ที่เฉพาะ VIP จะได้รู้... (เดี๋ยวบอสมาเติมเนื้อหาต่อ)"
+            description: "นี่คือความลับสวรรค์ที่เฉพาะ VIP จะได้รู้... (เดี๋ยวบอสมาเติมเนื้อหาต่อ)",
+            techSpecs: {
+              level: 'Advanced Dark Mode',
+              risk: 'High Reward',
+              target: 'Algorithm Hack',
+              status: 'Classified'
+            },
+            codeSnippet: `// 💀 [CLASSIFIED INFORMATION]\n// [ACCESS GRANTED FOR VIP ONLY]\n\nconst THE_DARK_ARTS = {\n  secret1: "ทริคดัน AI ของ YouTube ให้เปิดการมองเห็นตอนดึก",\n  secret2: "การทะลวง Limit ของ API แบบเนียนๆ",\n  secret3: "วิธีโคลนตัวเองให้รัน 5 สถานีพร้อมกัน"\n};\n\n// TODO: เตรียมเนื้อหาส่วนนี้ให้เดือดที่สุด`,
+            codeLang: 'javascript'
           }
         ]
       }
@@ -739,7 +763,7 @@ function renderHeroSpotlight() {
       ${hasPurchased ? `<div class="hero-owned-badge"><span class="tier-badge ${tierInfo.color}">${tierInfo.icon} ${tierInfo.label}</span></div>` : ''}
       <div class="hero-actions">
         <a href="theater.html?project=${spotlight.id}" class="btn btn-gold">
-          ${hasPurchased ? '▶ เข้าชมโรงฉาย' : '👁️ ดูรายละเอียด'}
+          ${hasPurchased ? '▶ เข้าชมคู่มือเต็มระบบ' : '👁️ ดูรายละเอียด'}
         </a>
         <button class="btn btn-ghost" onclick="document.getElementById('projects').scrollIntoView({behavior:'smooth'})">
           📋 ดูทั้งหมด
