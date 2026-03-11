@@ -492,27 +492,16 @@ pm2-startup install
             title: 'Bridge Control (Shared State)',
             shortDesc: 'Google Sheets เป็น Single Source of Truth',
             requiredTier: 'workflow',
-            description: 'Google Sheets Template ที่เป็นศูนย์กลางข้อมูล — ทุก Workflow อ่านเขียนจากที่เดียว: สถานะ Stream, DJ On-Duty, Current Playlist, Health Status',
-            techSpecs: {
-              type: 'Google Sheets',
-              sheets: 'BridgeControl, StreamLog, Config',
-              access: 'All 7 Workflows',
-              sync: 'Real-time'
-            },
-            codeSnippet: `// Google Sheets — Bridge Control Layout
-// Sheet: "BridgeControl"
-// ┌─────────────┬──────────────────┐
-// │ Key         │ Value            │
-// ├─────────────┼──────────────────┤
-// │ stream_live │ true             │
-// │ dj_on_duty  │ noah             │
-// │ playlist_id │ PLxxxx_night     │
-// │ viewers     │ 42               │
-// │ last_check  │ 2026-03-10 23:55 │
-// │ health      │ NOMINAL          │
-// │ uptime_hrs  │ 168.5            │
-// └─────────────┴──────────────────┘`,
-            codeLang: 'text'
+            description: 'ระบบนี้ใช้ Google Sheets เป็น "สมองส่วนกลาง" ให้ทั้ง 7 Workflows วิ่งมาอ่าน/เขียนสถานะ (State) ที่เดียวกัน ทำให้ระบบไม่รวน',
+            techSpecs: { type: 'Google Sheets', sheets: 'BridgeControl, StreamLog', access: 'All 7 Workflows', sync: 'Real-time' },
+            codeLang: 'javascript',
+            codeSnippet: `// ⚙️ OPERATIONS: Bridge Control (Shared State)
+// --------------------------------------------------
+// 💡 1-CLICK SETUP:
+// [ ] ในโฟลเดอร์ที่ดาวน์โหลดไป จะมีไฟล์ "Noah_Station_Master_DB.xlsx"
+// [ ] อัปโหลดไฟล์นี้ขึ้น Google Drive ของคุณ และกดเปิดด้วย Google Sheets
+// [ ] ก๊อปปี้ Sheet ID (รหัสยาวๆ บน URL)
+// [ ] นำไปใส่ในโหนด n8n ที่ชื่อว่า "YOUR_GOOGLE_SHEET_ID_HERE" เป็นอันจบ!`
           },
           {
             id: 'zero-touch',
@@ -520,15 +509,25 @@ pm2-startup install
             title: 'Zero-Touch Streaming',
             shortDesc: 'ปล่อยมือได้ ระบบรันเอง 24/7',
             requiredTier: 'vip',
-            description: 'Deployment Checklist สุดท้าย — เช็คทุกจุดว่าระบบพร้อมรันแบบ Zero-Touch จริงๆ: PM2 auto-start, Watchdog cron, OBS headless, Cloudflare Tunnel persistent',
-            techSpecs: {
-              deployment: 'Full Checklist',
-              automation: 'Cron + PM2',
-              monitoring: 'LINE + Sheets',
-              support: 'VIP Group Only'
-            },
-            codeSnippet: `# Zero-Touch Deployment Checklist\n# ✅ Pre-Flight\npm2 status                    # All services online\ncrontab -l                    # Watchdog scheduled\ncloudflared tunnel list       # Tunnel active\nobs --version                 # OBS headless ready\n\n# ✅ Go-Live Sequence\npm2 start noah-n8n            # Start n8n\nsleep 5\ncurl localhost:5678/healthz   # Verify n8n\ncurl -X POST localhost:5678/webhook/focus-start  # Start stream\n\n# ✅ Verify\n# → YouTube Studio: Stream LIVE\n# → Google Sheets: BridgeControl updated\n# → LINE: No error alerts\n# → Chat: AI responding\n\necho "🟢 NOAH STATION IS ONLINE — ZERO TOUCH ACTIVE"`,
-            codeLang: 'bash'
+            description: 'Deployment Checklist สุดท้าย — เช็คทุกจุดว่าระบบพร้อมรันแบบ Zero-Touch จริงๆ แค่ปิดจอแล้วปล่อยให้เครื่องจักรทำงานหาเงินให้คุณ',
+            techSpecs: { deployment: 'Full Checklist', automation: 'Cron + PM2', monitoring: 'LINE + Sheets', support: 'VIP Group Only' },
+            codeLang: 'bash',
+            codeSnippet: `# ⚙️ OPERATIONS: Zero-Touch Streaming Checklist
+# --------------------------------------------------
+
+# 1. เช็คสถานะตัวคุม Process (PM2)
+pm2 status  # n8n ต้องขึ้นสถานะ online สีเขียว
+pm2 save    # เซฟสถานะให้รันออโต้ตอนเปิดเครื่องใหม่
+
+# 2. ตรวจสอบพอร์ตเชื่อมต่อ (OBS & VLC)
+> OBS WebSocket ... Connected (Port 4455)
+> VLC HTTP API .... Connected (Port 8080)
+
+# 3. สถานะ Watchdog
+> Watchdog Protocol ... STANDBY (เช็คทุก 15 นาที)
+
+> status: ALL SYSTEMS NOMINAL
+> [SUCCESS] คุณสามารถปิดหน้าจอ ออกจากระบบ และปล่อยให้สถานีรัน 24/7 ได้ทันที`
           },
           {
             id: 'troubleshooting',
@@ -537,14 +536,19 @@ pm2-startup install
             shortDesc: 'อาการยอดฮิต และวิธีแก้ตลับเมตร 1-2-3',
             requiredTier: 'workflow',
             description: 'รวมอาการพังยอดฮิตของระบบ Auto — API ล่ม, Token หมดอายุ, n8n ค้างจอขาว — พร้อมวิธีเชือดบั๊กสไตล์ Dark Architect',
-            techSpecs: {
-              issue: 'Google Token Expired',
-              solution: 'Re-authenticate credentials',
-              issue2: 'n8n RAM Leak',
-              solution2: 'PM2 auto-restart rule'
-            },
-            codeSnippet: `// 💡 คู่มือซ่อมฉุกเฉิน (เดี๋ยวบอสมาเติมของจริง)\n\n// อาการ 1: n8n ค้าง จอขาว\n// สาเหตุ: RAM เต็ม หรือ Process ผีดิบ\n// วิธีแก้: เปิด PowerShell แล้วรันคำสั่งนี้\npm2 restart n8n\n\n// อาการ 2: YouTube API หลุด\n// สาเหตุ: Token หมดอายุ 7 วัน\n// วิธีแก้: เข้า n8n -> Credentials -> Reconnect Google`,
-            codeLang: 'javascript'
+            techSpecs: { issue: 'Google Token Expired', solution: 'Re-authenticate credentials', issue2: 'n8n RAM Leak', solution2: 'PM2 auto-restart' },
+            codeLang: 'javascript',
+            codeSnippet: `// ⚙️ OPERATIONS: Failure Patterns (คู่มือแก้กรรม)
+// --------------------------------------------------
+
+// 🔴 อาการ: n8n ค้าง, จอขาว, รัน Workflow ไม่ผ่าน
+// 🔧 วิธีแก้: เปิด PowerShell หน้าต่างใหม่ แล้วพิมพ์คำสั่ง pm2 restart n8n
+
+// 🔴 อาการ: YouTube API หลุด (ขึ้น Error 401/403)
+// 🔧 วิธีแก้: เข้า n8n -> ไปที่เมนู Credentials -> กดปุ่ม Reconnect หน้า Google OAuth2
+
+// 🔴 อาการ: สตรีมดับเองกลางอากาศแบบไม่ทราบสาเหตุ
+// 🔧 วิธีแก้: ไม่ต้องทำอะไร! ไปนอนซะ ปล่อยให้ Watchdog Protocol ทำงาน มันจะชุบชีวิตสตรีมใหม่ให้เองภายใน 3 นาที`
           },
           {
             id: 'monetization',
@@ -552,32 +556,43 @@ pm2-startup install
             title: 'Monetization & Scaling',
             shortDesc: 'วิธีทำเงินจากสถานีที่หลับไม่เป็น',
             requiredTier: 'vip',
-            description: 'ระบบเสร็จแล้ว แล้วเงินล่ะ? — วิธีเอาสถานีไปรับสปอนเซอร์, ดึงคนเข้า LINE OA ฟันกำไร, และโมเดลรับจ้างเปิดสถานีให้คนอื่น',
-            techSpecs: {
-              model1: 'Sponsorship Placement',
-              model2: 'Lead Gen to LINE OA',
-              model3: 'Station-as-a-Service',
-              expected: 'Passive Income'
-            },
-            codeSnippet: `// 💡 โมเดลทำเงินจาก Noah Station (เดี๋ยวบอสมาเติม)\n\n# 1. รับ Sponsor วางโลโก้บน Live\n# เนื่องจาก Live รัน 24/7 = 720 ชั่วโมง/เดือน\n# สามารถขาย Ad Placement ให้แบรนด์ได้ในราคา x,xxx บาท/เดือน\n\n# 2. ดูดคนเข้า LINE OA\n# ให้ Neon (AI) แจกโค้ดลับในแชทให้คนแอด LINE\n# เปลี่ยน Viewers เป็น Lead เก็บไว้ทำ CRM\n\n# 3. รับจ้างเปิดสถานี (SaaS)\n# รับจ้างรันระบบให้ช่องคนอื่น เก็บรายเดือน`,
-            codeLang: 'markdown'
+            description: 'ระบบเสร็จแล้ว แล้วเงินล่ะ? — 3 โมเดลทางธุรกิจในการเปลี่ยนสถานี Lofi ให้กลายเป็นเครื่องผลิต Asset ทำเงินให้คุณ',
+            techSpecs: { model1: 'Sponsorship Placement', model2: 'Lead Gen to LINE OA', model3: 'Station-as-a-Service' },
+            codeLang: 'markdown',
+            codeSnippet: `# ⚙️ OPERATIONS: Monetization & Scaling
+# --------------------------------------------------
+# เปลี่ยนเวลา 720 ชั่วโมง/เดือน ของสถานี ให้เป็น Asset
+
+1. 💎 Sponsor Overlay: 
+   - ขายพื้นที่แปะโลโก้แบรนด์บนหน้าจอ Live (คิดเรทรายเดือน/รายสัปดาห์)
+
+2. 🎣 LINE OA Lead Generation: 
+   - ให้ AI (Neon/Noah) พิมพ์แจกของหรือทักทาย ชวนคนดูแอด LINE OA
+   - เปลี่ยน Viewers ขาจร ให้กลายเป็น Data ในมือคุณเพื่อต่อยอดธุรกิจอื่น
+
+3. 🏢 Station-as-a-Service (SaaS):
+   - รับจ้างวางระบบ Noah Station ให้กับช่อง YouTube หรือแบรนด์อื่นๆ
+   - ฟันกำไรจากค่า Setup ก้อนแรก และเก็บค่าดูแล (MA) รายเดือน`
           },
           {
             id: "secret-bonus",
             icon: "🔥",
             title: "VIP Discord & เทคนิคขั้นเทพ",
             shortDesc: "กุญแจเข้ากลุ่มลับ และ Technical Support",
-            type: "architecture",
             requiredTier: "vip",
-            description: "สำหรับเพื่อนชาว VIP นี่คือกุญแจเข้าสู่ Discord ลับของเรา ที่นี่จะมีบอท Noah คอยซัพพอร์ต 24/7 และเป็นที่พูดคุยเทคนิคสาย Dark ที่เปิดเผยที่อื่นไม่ได้",
-            techSpecs: {
-              access: 'Discord Private Server',
-              support: '24/7 AI + VIP Human Loop',
-              community: 'Exclusive Members Only',
-              status: 'Classified'
-            },
-            codeSnippet: `// 💀 [CLASSIFIED INFORMATION]\n// [ACCESS GRANTED FOR VIP ONLY]\n\n// 1. คัดลอกลิงก์ด้านล่างนี้ไปเปิดใน Browser\nconst discordInvite = "https://discord.gg/YOUR_INVITE_LINK_HERE";\n\n// 2. เมื่อเข้าไปแล้ว ให้ไปที่ห้อง #verify เพื่อยืนยันตัวตน\n// 3. หลังจากนั้นห้อง #vip-support จะเปิดออก\n// 4. พิมพ์ถามปัญหาหรือพูดคุยเทคนิคในห้องนั้นได้เลย บอท Noah สแตนด์บายอยู่ 24/7`,
-            codeLang: 'javascript'
+            description: "สำหรับแพ็กเกจ VIP เท่านั้น — นี่คือกุญแจเข้าสู่ห้องเครื่องของเรา ที่นี่จะมีบอท AI Noah คอยซัพพอร์ต 24/7 และผม (บอส) จะคอยดูหลังบ้านให้",
+            techSpecs: { access: 'Discord Private Server', support: '24/7 AI + VIP Human Loop', status: 'Classified' },
+            codeLang: 'javascript',
+            codeSnippet: `// 💀 [CLASSIFIED INFORMATION]
+// [ACCESS GRANTED FOR VIP RUN-WITH-YOU ONLY]
+// --------------------------------------------------
+
+// 1. ก๊อปปี้ลิงก์ด้านล่างนี้ไปเปิดใน Browser เพื่อเข้าสู่ศูนย์บัญชาการ
+const discordInvite = "https://discord.gg/YOUR_INVITE_LINK_HERE";
+
+// 2. เมื่อเข้ามาแล้ว ให้ไปที่ห้อง #verify เพื่อยืนยันสลิป Tier 3
+// 3. ระบบจะทำการปลดล็อกห้อง #vip-support ให้คุณอัตโนมัติ
+// 4. พิมพ์ถามปัญหาได้เลย "Noah AI Support" สแตนด์บายรอตอบคุณอยู่ 24/7 (หรือจะแท็กเรียกบอสโดยตรงก็ได้)`
           }
         ]
       }
