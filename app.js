@@ -268,7 +268,6 @@ pm2-startup install
 // [ ] โหนด 📤 Send Reply: ต่อ Google Credential ขากลับ
 // [ ] อย่าลืมเสียบ Webhook URL เข้ากับ Stream Deck หรือระบบที่คุณใช้ยิงแชทมา`,
             codeLang: 'javascript'
-            codeLang: 'json'
           }
         ]
       },
@@ -305,7 +304,6 @@ pm2-startup install
 // [ ] โหนด 🔴 Set Offline: ใส่ ID ไฟล์ Google Sheets ของคุณ (ไฟล์เดียวกัน)
 // [ ] เปิดสวิตช์ Active (มุมขวาบน) ให้เป็น ON เพื่อเริ่มให้ระบบทำงาน 24/7`,
             codeLang: 'javascript'
-            codeLang: 'json'
           },
           {
             id: 'wf-eclipse-protocol',
