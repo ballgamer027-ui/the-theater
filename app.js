@@ -42,6 +42,7 @@ const PROJECTS = [
     spotlight: true,
     videoTitle: 'Noah Station — Full System Walkthrough',
     videoSubtitle: 'คัมภีร์สร้างสถานีที่ไม่เคยหลับ',
+    youtubeUrl: 'https://www.youtube.com/embed/Hlz0N5IInio?vq=hd1080&modestbranding=1&rel=0',
     deploymentGuideUrl: 'https://noahstation.netlify.app/',
     stats: { chapters: 7, workflows: 7, personas: 2, uptime: '24/7' },
     pricing: {
@@ -786,9 +787,15 @@ function renderStage() {
   if (!stage) return;
 
   const userTier = getUserTierForProject(currentProject.id);
-  const tierInfo = TIERS[userTier];
-
-  stage.innerHTML = `
+  const videoPlayerHTML = currentProject.youtubeUrl ? `
+    <div class="video-wrapper" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); background: #000;">
+      <iframe src="${currentProject.youtubeUrl}" 
+              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen>
+      </iframe>
+    </div>
+  ` : `
     <div class="stage-video-container">
       <img src="${currentProject.heroUrl}" alt="${currentProject.title}" class="stage-poster"
            onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #0e0e1a, #1a0e2a, #0a1a2e)';">
@@ -796,6 +803,10 @@ function renderStage() {
         <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </button>
     </div>
+  `;
+
+  stage.innerHTML = `
+    ${videoPlayerHTML}
     <div class="stage-info">
       <div>
         <div class="stage-title">${currentProject.videoTitle || currentProject.title}</div>
