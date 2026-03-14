@@ -173,7 +173,7 @@
         "nodeCredentialType": "googleOAuth2Api",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"snippet\": {\n    \"playlistId\": \"PLjf2e6WKhPS5DqPMdRi8jFjqd6myZVRz9\",\n    \"resourceId\": {\n      \"kind\": \"youtube#video\",\n      \"videoId\": \"{{ $node['📥 Fetch Broadcast'].json.items[0].id }}\"\n    }\n  }\n}",
+        "jsonBody": "={\n  \"snippet\": {\n    \"playlistId\": \"YOUR_YOUTUBE_PLAYLIST_ID_HERE\",\n    \"resourceId\": {\n      \"kind\": \"youtube#video\",\n      \"videoId\": \"{{ $node['📥 Fetch Broadcast'].json.items[0].id }}\"\n    }\n  }\n}",
         "options": {}
       },
       "id": "6a73bdd2-0572-46c0-95e9-dcca68539820",

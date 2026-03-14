@@ -495,13 +495,67 @@ pm2-startup install
             description: 'ระบบนี้ใช้ Google Sheets เป็น "สมองส่วนกลาง" ให้ทั้ง 7 Workflows วิ่งมาอ่าน/เขียนสถานะ (State) ที่เดียวกัน ทำให้ระบบไม่รวน',
             techSpecs: { type: 'Google Sheets', sheets: 'BridgeControl, StreamLog', access: 'All 7 Workflows', sync: 'Real-time' },
             codeLang: 'javascript',
-            codeSnippet: `// ⚙️ OPERATIONS: Bridge Control (Shared State)
-// --------------------------------------------------
-// 💡 1-CLICK SETUP:
-// [ ] ในโฟลเดอร์ที่ดาวน์โหลดไป จะมีไฟล์ "Noah_Station_Master_DB.xlsx"
-// [ ] อัปโหลดไฟล์นี้ขึ้น Google Drive ของคุณ และกดเปิดด้วย Google Sheets
-// [ ] ก๊อปปี้ Sheet ID (รหัสยาวๆ บน URL)
-// [ ] นำไปใส่ในโหนด n8n ที่ชื่อว่า "YOUR_GOOGLE_SHEET_ID_HERE" เป็นอันจบ!`
+            codeSnippet: `// ⚙️ OPERATIONS: Bridge Control — Google Sheets Setup
+// ต้องสร้าง Sheet 3 แท็บในไฟล์เดียว ตามโครงสร้างด้านล่าง
+// ======================================================
+
+// 📋 ตารางที่ 1 — สร้าง Tab ชื่อ: Noah_Live_Status
+// คัดลอก Header แถวแรกไปวางใน Row 1:
+// ┌─────────────────┬──────────────┬──────────────────┐
+// │  Stream_Status  │  Live_Chat_ID │   Last_Updated   │
+// └─────────────────┴──────────────┴──────────────────┘
+// 🔧 ใช้โดย: Workflow ① Master State Sync
+//    → เขียนสถานะ Active/Offline และ Chat ID ลงที่นี่
+//    → Workflow อื่นๆ วิ่งมาอ่านค่าจาก Sheet นี้ก่อนทำงาน
+
+// ======================================================
+
+// 📋 ตารางที่ 2 — สร้าง Tab ชื่อ: Noah_Live_DB
+// คัดลอก Header แถวแรกไปวางใน Row 1:
+// ┌─────────────┬──────────┬───────────┬─────────────┐
+// │  Timestamp  │  Author  │  Message  │  Responder  │
+// └─────────────┴──────────┴───────────┴─────────────┘
+// 🔧 ใช้โดย: Workflow ② Eclipse Protocol
+//    → บันทึก Log แชทพร้อมว่า Noah หรือ Neon เป็นคนตอบ
+
+// ======================================================
+
+// 📋 ตารางที่ 3 — สร้าง Tab ชื่อ: User_DB
+// คัดลอก Header แถวแรกไปวางใน Row 1:
+// ┌────────────┬──────────────┬─────────────┬────────────┬───────────┬───────────┬───────────┬──────────────────┐
+// │ channel_id │ display_name │ rank_system │ exp_points │ join_date │ last_seen │ ai_memory │ membership_tier  │
+// └────────────┴──────────────┴─────────────┴────────────┴───────────┴───────────┴───────────┴──────────────────┘
+// 🔧 ใช้โดย: ทุก Workflow ที่เกี่ยวกับผู้ชม
+//    → เก็บโปรไฟล์, ยศ, คะแนน EXP และความทรงจำ AI ของผู้ชมแต่ละคน
+
+// ======================================================
+// ⚡ วิธีสร้างอัตโนมัติ (แนะนำ) — ใช้ Apps Script:
+// [1] สร้าง Google Sheets ไฟล์ว่างใหม่
+// [2] ไปที่ ส่วนขยาย (Extensions) → Apps Script
+// [3] วางโค้ดด้านล่างแล้วกด "เรียกใช้" (Run):
+
+function buildNoahDatabase() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // 1. สร้าง Sheet: Noah_Live_Status
+  let s1 = ss.getSheetByName("Noah_Live_Status") || ss.insertSheet("Noah_Live_Status");
+  s1.clear(); s1.appendRow(["Stream_Status", "Live_Chat_ID", "Last_Updated"]);
+
+  // 2. สร้าง Sheet: Noah_Live_DB
+  let s2 = ss.getSheetByName("Noah_Live_DB") || ss.insertSheet("Noah_Live_DB");
+  s2.clear(); s2.appendRow(["Timestamp", "Author", "Message", "Responder"]);
+
+  // 3. สร้าง Sheet: User_DB
+  let s3 = ss.getSheetByName("User_DB") || ss.insertSheet("User_DB");
+  s3.clear(); s3.appendRow(["channel_id", "display_name", "rank_system", "exp_points", "join_date", "last_seen", "ai_memory", "membership_tier"]);
+
+  // ทำตัวหนาให้หัวตาราง
+  [s1, s2, s3].forEach(sheet => sheet.getRange("A1:H1").setFontWeight("bold"));
+
+  // ลบชีตตั้งต้นทิ้งเพื่อความสะอาด
+  let defaultSheet = ss.getSheetByName("Sheet1") || ss.getSheetByName("แผ่นที่ 1");
+  if (defaultSheet && ss.getSheets().length > 3) ss.deleteSheet(defaultSheet);
+// [4] กลับมา Copy Sheet ID จาก URL แล้วใส่ในโหนด n8n ทุกอัน ✅`
           },
           {
             id: 'zero-touch',

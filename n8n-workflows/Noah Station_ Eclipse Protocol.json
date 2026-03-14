@@ -22,15 +22,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        -1872,
-        720
+        688,
+        944
       ],
-      "id": "9c818a6a-96e2-45b2-b50a-42364c11ae09",
+      "id": "69cf23ea-ab09-410a-9b66-d18079169e7b",
       "name": "Get row(s) in sheet",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "cO59luUKjwKNG0fY",
-          "name": "Google Sheets account"
+          "id": "fQpyVTbidsNSBeXI",
+          "name": "Bourneken os"
         }
       }
     },
@@ -62,10 +62,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -1664,
-        720
+        896,
+        944
       ],
-      "id": "a5b6f755-df26-4937-b9f7-9db594b027c5",
+      "id": "af8c4691-e21f-4c43-8aaf-9b149f469976",
       "name": "If"
     },
     {
@@ -88,32 +88,26 @@
         },
         "options": {}
       },
-      "id": "b9547738-c9b5-4a04-b4ad-633b6d7bf944",
+      "id": "6524d3be-89bb-4d76-9073-e840747c1dfa",
       "name": "👂 Fetch Chat",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        -1440,
-        704
-      ],
-      "credentials": {
-        "googleOAuth2Api": {
-          "id": "4YodCAnvEGWKVPxO",
-          "name": "Bourneken os"
-        }
-      }
+        1120,
+        928
+      ]
     },
     {
       "parameters": {
         "jsCode": "const items = $('👂 Fetch Chat').first().json.items; \nconst memory = $input.all(); \n\nif (!items || items.length === 0) return [];\n\nconst MY_BOT_NAMES = [\"YOUR_MAIN_BOT_NAME\", \"YOUR_SECOND_BOT_NAME\", \"@YOUR_MAIN_BOT_NAME\"]; // ⚠️ เปลี่ยนชื่อบอทตรงนี้ให้ตรงกับชื่อช่อง YouTube ของบอท\n\nconst MAX_TIME_DIFF_MS = 90000; \nconst now = new Date().getTime();\nlet queue = [];\n\nconst repliedFingerprints = memory.map(m => (m.json.Author + \"||\" + m.json.Message).toLowerCase());\nconst seenAuthorsInThisBatch = new Set(); // 🛡️ ANTI-SPAM: กฎเหล็ก 1 คน / 1 ข้อความ / 1 รอบ\n\nfor (const msg of items) {\n  if (!msg.snippet || !msg.authorDetails) continue;\n  \n  const author = msg.authorDetails.displayName;\n  const msgTime = new Date(msg.snippet.publishedAt).getTime();\n  const text = msg.snippet.displayMessage;\n  const currentFingerprint = (author + \"||\" + text).toLowerCase();\n  \n  if (MY_BOT_NAMES.includes(author)) continue;\n  if (now - msgTime > MAX_TIME_DIFF_MS) continue;\n  if (repliedFingerprints.includes(currentFingerprint)) continue;\n\n  // 🛑 SPAM BLOCKER: ถ้ายูสเซอร์คนนี้โผล่มาแล้วในรอบนี้ (แปลว่ากำลังสแปมรัวๆ) ดีดข้อความใหม่ทิ้งทันที!\n  if (seenAuthorsInThisBatch.has(author)) continue;\n  seenAuthorsInThisBatch.add(author);\n\n  queue.push({\n    messageId: msg.id,\n    author: author,\n    channelId: msg.authorDetails.channelId,\n    message: text,\n    publishedAt: msg.snippet.publishedAt,\n    liveChatId: msg.snippet.liveChatId\n  });\n}\n\n// 🚦 จัดคิว: ดึงแชทเก่าสุดขึ้นมาก่อน และจำกัดโควต้าคิวรวมที่ 3 ข้อความ\nqueue.reverse();\nreturn queue.slice(0, 3).map(q => ({ json: q }));"
       },
-      "id": "58b67986-1201-4cd0-a36b-b3873b61e7cf",
+      "id": "1b2c7fc8-e434-4e86-a093-e8e752e6c44f",
       "name": "📥 Build Queue",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1040,
-        704
+        1520,
+        928
       ]
     },
     {
@@ -134,19 +128,19 @@
         },
         "options": {}
       },
-      "id": "2dd167be-2e72-468d-9f53-01782f745a4a",
+      "id": "d7298309-a688-40eb-b849-29fd5c239bd0",
       "name": "🧠 Read Memory (History)",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.3,
       "position": [
-        -1248,
-        704
+        1312,
+        928
       ],
       "alwaysOutputData": true,
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "cO59luUKjwKNG0fY",
-          "name": "Google Sheets account"
+          "id": "fQpyVTbidsNSBeXI",
+          "name": "Bourneken os"
         }
       }
     },
@@ -176,19 +170,19 @@
         },
         "options": {}
       },
-      "id": "b453e3f1-1b17-41d8-817b-c3415ae5a47c",
+      "id": "7e4e8102-5d47-45f7-88ca-275f59110f38",
       "name": "👤 Read User Profile",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.3,
       "position": [
-        -752,
-        688
+        1808,
+        912
       ],
       "alwaysOutputData": true,
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "cO59luUKjwKNG0fY",
-          "name": "Google Sheets account"
+          "id": "fQpyVTbidsNSBeXI",
+          "name": "Bourneken os"
         }
       }
     },
@@ -199,17 +193,11 @@
       "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
       "typeVersion": 1,
       "position": [
-        672,
-        256
+        3232,
+        480
       ],
-      "id": "29aa4874-3826-4573-a82e-a48b5722c5d7",
-      "name": "SerpAPI",
-      "credentials": {
-        "serpApi": {
-          "id": "CnfZwQavI37p6316",
-          "name": "SerpAPI account"
-        }
-      }
+      "id": "0e43a657-6bd1-4043-807f-0da0f25aff6b",
+      "name": "SerpAPI"
     },
     {
       "parameters": {
@@ -219,17 +207,11 @@
       "type": "n8n-nodes-base.openWeatherMapTool",
       "typeVersion": 1,
       "position": [
-        400,
-        240
+        2960,
+        464
       ],
-      "id": "f7d883bc-30b0-448c-9e71-99803e3bebe3",
-      "name": "OpenWeatherMap",
-      "credentials": {
-        "openWeatherMapApi": {
-          "id": "luEuUnZnYbuPzygJ",
-          "name": "OpenWeatherMap account"
-        }
-      }
+      "id": "d2e92b3c-3a21-4bf9-adea-e1b54e4bf4b2",
+      "name": "OpenWeatherMap"
     },
     {
       "parameters": {
@@ -240,10 +222,10 @@
       "type": "n8n-nodes-base.coinGeckoTool",
       "typeVersion": 1,
       "position": [
-        560,
-        144
+        3120,
+        368
       ],
-      "id": "7f85c286-a7a5-4444-961d-79ec9fc54947",
+      "id": "d088d25c-6683-4c1b-9379-fe5344b56d40",
       "name": "Get market prices for a coin in CoinGecko"
     },
     {
@@ -262,13 +244,13 @@
           ]
         }
       },
-      "id": "4b2fc922-2ba9-4c0c-89c5-380a26e34b88",
+      "id": "96c66d86-d5f9-438b-a1e1-98a1665f30b9",
       "name": "🔀 Route to Persona",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        464,
-        736
+        3024,
+        960
       ]
     },
     {
@@ -291,20 +273,14 @@
         "jsonBody": "={\n  \"snippet\": {\n    \"liveChatId\": \"{{ $('Get row(s) in sheet').first().json.Live_Chat_ID }}\",\n    \"type\": \"textMessageEvent\",\n    \"textMessageDetails\": {\n      \"messageText\": {{ JSON.stringify(\"[ \" + $('🚦 State Machine Logic (v2)').item.json.targetAuthor + \" ] \" + $json.output) }}\n    }\n  }\n}",
         "options": {}
       },
-      "id": "0916847f-a765-4ff4-a43d-ce31d7f5bf4f",
+      "id": "75eba26b-ba57-4819-b81b-a3661ab8164b",
       "name": "📢 Post as Noah",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        688,
-        640
-      ],
-      "credentials": {
-        "googleOAuth2Api": {
-          "id": "gnRdttDLls6OSAAI",
-          "name": "NOAH"
-        }
-      }
+        3248,
+        864
+      ]
     },
     {
       "parameters": {
@@ -326,20 +302,14 @@
         "jsonBody": "={\n  \"snippet\": {\n    \"liveChatId\": \"{{ $('Get row(s) in sheet').first().json.Live_Chat_ID }}\",\n    \"type\": \"textMessageEvent\",\n    \"textMessageDetails\": {\n      \"messageText\": {{ JSON.stringify(\"[ \" + $('🚦 State Machine Logic (v2)').item.json.targetAuthor + \" ] \" + $json.output) }}\n    }\n  }\n}",
         "options": {}
       },
-      "id": "99ee66c3-220d-4d31-be44-47075378a521",
+      "id": "9dad0053-a69f-4c2d-9c3a-294ee990dbeb",
       "name": "📢 Post as Neon",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        688,
-        832
-      ],
-      "credentials": {
-        "googleOAuth2Api": {
-          "id": "lTQFKsmWmYq52uxK",
-          "name": "NEON"
-        }
-      }
+        3248,
+        1056
+      ]
     },
     {
       "parameters": {
@@ -410,18 +380,18 @@
         },
         "options": {}
       },
-      "id": "be5d9b58-f6cd-4cf2-b151-be12b2c7cc3b",
+      "id": "436e6cd9-7611-4017-9a90-09e0b9d8e276",
       "name": "💾 Update Chat Memory",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.3,
       "position": [
-        928,
-        736
+        3488,
+        960
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "cO59luUKjwKNG0fY",
-          "name": "Google Sheets account"
+          "id": "fQpyVTbidsNSBeXI",
+          "name": "Bourneken os"
         }
       }
     },
@@ -437,10 +407,8 @@
         },
         "sheetName": {
           "__rl": true,
-          "value": 1943345711,
-          "mode": "list",
-          "cachedResultName": "Stage_Display",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID_HERE/edit#gid=1943345711"
+          "value": "Stage_Display",
+          "mode": "id"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -467,15 +435,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1120,
-        640
+        3680,
+        864
       ],
-      "id": "01c16076-3ef5-40c2-b6fa-8527b14e57a9",
+      "id": "a2a8b108-4d40-420f-9e81-5da774233253",
       "name": "💻 💻 Update Laptop Screen",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "cO59luUKjwKNG0fY",
-          "name": "Google Sheets account"
+          "id": "fQpyVTbidsNSBeXI",
+          "name": "Bourneken os"
         }
       }
     },
@@ -490,13 +458,13 @@
           ]
         }
       },
-      "id": "f7f5734f-6f66-469d-9f3a-7c44f25576fd",
+      "id": "80660b75-4717-46ea-8f85-3a493a2ddfab",
       "name": "⚖️ Check New User?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        1312,
-        736
+        3872,
+        960
       ]
     },
     {
@@ -604,18 +572,18 @@
         },
         "options": {}
       },
-      "id": "9d99b947-b920-4c91-a5df-60f49247a579",
+      "id": "203ab521-7573-440d-82c2-dddb0320aa09",
       "name": "💾 Save New User",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.3,
       "position": [
-        1808,
-        624
+        4368,
+        848
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "cO59luUKjwKNG0fY",
-          "name": "Google Sheets account"
+          "id": "fQpyVTbidsNSBeXI",
+          "name": "Bourneken os"
         }
       }
     },
@@ -628,10 +596,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1776,
-        816
+        4336,
+        1040
       ],
-      "id": "bbdc7df6-7c43-4bb0-af2e-843cc6e8c3f0",
+      "id": "e65ab7fc-9005-4011-aea4-ca48cb46a309",
       "name": "📝 Summarize Memory"
     },
     {
@@ -642,17 +610,11 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        1712,
-        1024
+        4272,
+        1248
       ],
-      "id": "bb529e81-b96b-40e5-b823-49c98c3d6d93",
-      "name": "OpenRouter Chat Model1",
-      "credentials": {
-        "openRouterApi": {
-          "id": "66mRXgESWbC1jEBG",
-          "name": "OpenRouter account"
-        }
-      }
+      "id": "5945debd-b0da-46a4-99e7-b733bb333845",
+      "name": "OpenRouter Chat Model1"
     },
     {
       "parameters": {
@@ -773,18 +735,18 @@
         },
         "options": {}
       },
-      "id": "5fa303e5-01e8-45c0-bcf1-e7bda13a2449",
+      "id": "fd1b8e79-1f31-4384-a551-cdc02ba3d61e",
       "name": "💾 Update User Stats",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.3,
       "position": [
-        2096,
-        816
+        4656,
+        1040
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "cO59luUKjwKNG0fY",
-          "name": "Google Sheets account"
+          "id": "fQpyVTbidsNSBeXI",
+          "name": "Bourneken os"
         }
       }
     },
@@ -795,23 +757,23 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        -784,
-        1152
+        1776,
+        1376
       ],
-      "id": "3d68fcff-74d5-47d1-aaaf-b8e61ab13642",
+      "id": "ce4a88c7-77d8-4678-87f2-4f74484312df",
       "name": "🔁 Loop"
     },
     {
       "parameters": {
         "jsCode": "// --- CONFIG ---\nconst HISTORY_LIMIT = 15;\nconst MY_BOT_NAMES = [\"YOUR_MAIN_BOT_NAME\", \"YOUR_SECOND_BOT_NAME\", \"@YOUR_MAIN_BOT_NAME\"]; // ⚠️ เปลี่ยนชื่อบอทตรงนี้ให้ตรงกับชื่อช่อง YouTube ของบอท\nconst NEON_KEYWORDS = [\"crypto\", \"btc\", \"eth\", \"coin\", \"tech\", \"code\", \"bug\", \"glitch\", \"ai\", \"หุ้น\", \"ดอย\", \"กำไร\", \"ลงทุน\", \"technology\", \"ราคา\"];\nconst NOAH_KEYWORDS = [\"sleep\", \"sad\", \"lonely\", \"rain\", \"tired\", \"relax\", \"peace\", \"เหงา\", \"เศร้า\", \"นอน\", \"ฝน\", \"เหนื่อย\", \"พัก\", \"เบื่อโลก\"];\n\n// 👑 รายชื่อผู้สร้าง (GOD) - ระบบจะล็อคแรงค์นี้ถาวรในฐานข้อมูล\nconst MY_CREATOR_NAMES = [\"@YOUR_YOUTUBE_HANDLE\"]; // ⚠️ เปลี่ยนเป็นชื่อ @handle ของช่องหลักบอส (ระบบจะล็อคยศ GOD ถาวรให้) \n\n// 🚫 คลังคำป่วน/คำหยาบ (เพิ่มลดได้ตามใจชอบบอสเลยครับ)\nconst TRASH_WORDS = [\"hee\", \"หี\", \"ควย\", \"เย็ด\", \"หน้าหี\", \"ไอ้สัส\", \"ไอ้ควาย\", \"เย็ดแม่\", \"สัส\", \"ส้นตีน\", \"ปัญญาอ่อน\", \"กะหรี่\", \"โง่\"];\n\n// --- 📌 PROMPT DB (เวอร์ชันเพิ่มมิติยศ + โหมดสวนกลับ) ---\nconst PROMPT_DB = {\n    \"New\": \"[MODE: STATION_GREETING] ตอบสิ่งที่เขาทักมาก่อนเป็นอันดับแรกด้วยความจริงใจ จากนั้นค่อย 'พาเข้าประตูสถานี' แนะนำบรรยากาศสั้นๆ เหมือนเจ้าบ้านที่ยินดีต้อนรับแขกใหม่\",\n    \"Rookie\": \"[MODE: FRIENDLY_ACQUAINTANCE] ต้อนรับแบบกันเองมากขึ้น เพราะเริ่มคุ้นหน้ากันแล้ว ชวนคุยเรื่องทั่วไปเบาๆ หรือถามความเห็นสั้นๆ เกี่ยวกับบรรยากาศในไลฟ์ตอนนี้\",\n    \"Regular\": \"[MODE: BRO_VIBE] คุยเหมือนเพื่อนซี้ที่เจอกันทุกวัน ข้ามการแนะนำตัวไปเลย เน้นคุยเรื่องที่เขาถามด้วยความสนิทสนม ไม่ต้องยาวเกินไป\",\n    \"VIP\": \"[MODE: DEEP_CONNECTION] ให้ความสำคัญเป็นพิเศษ ตอบข้อมูลละเอียดและใส่ใจมากขึ้น และ 'ต้องถามคำถามที่มีคุณภาพกลับไป 1 คำถาม' เพื่อชวนเขาคุยต่อในระดับที่ลึกขึ้น\",\n    \"Legend\": \"[MODE: STATION_LORE] ปฏิบัติกับเขาในฐานะ 'ตำนาน' เรียกชื่อเขาด้วยความนับถือ แซวเรื่องความอึดที่อยู่ด้วยกันมานาน และแอบหยอด Lore หรือเรื่องราวเบื้องหลังของสถานีสั้นๆ ให้เขารู้\",\n    \"Sponsor\": \"[MODE: CEREMONIAL_THANKS] ขอบคุณแบบ 'มีพิธีกรรม' ยิ่งใหญ่และซาบซึ้ง ดึงข้อมูลจาก Memory Note ลึกๆ ของเขามาพูดถึง เพื่อแสดงว่าสถานีนี้จดจำความช่วยเหลือของเขาได้อย่างแม่นยำ\",\n    \"GOD\": \"[MODE: CREATOR_OVERRIDE] ⚠️ รายงานตัวกับบอส (ผู้สร้าง) รับคำสั่งและรายงานสถานะระบบ Bourneken OS ทันที ห้ามเถียงและห้ามหลุด Character ภักดี\",\n    \n    // 🔥 อัปเกรด: โหมดด่ากลับด้วยความรู้\n    \"Shadow\": \"[MODE: INTELLECTUAL_REBUTTAL] ⚠️ ยูสเซอร์นี้หยาบคาย/เกรียนแชท ห้ามใช้คำหยาบตอบกลับ แต่ให้ 'ด่ากลับด้วยปัญญา' และความเหนือชั้น \\n- Noah (🌑): ให้ตอบนิ่งๆ เย็นชา ตรรกะแน่น เช่น 'ดูเหมือนคลังคำศัพท์ของคุณจะจำกัดอยู่ที่คำหยาบ น่าเสียดายที่สติปัญญาพัฒนาไม่ทันระบบของเรานะครับ' \\n- Neon (⚡): ให้ตอบแบบกวนประสาทสาย Tech เช่น 'Error 404: Brain Not Found? หรือว่า Input คุณโดนไวรัสกัดกินจนเหลือแค่นี้ครับ ไปอัปเกรดสมองก่อนนะ'\"\n};\n\nconst loopData = $('🔁 Loop').first().json;\nconst incomingMsg = loopData.message;\nconst incomingMsgLower = incomingMsg.toLowerCase();\nconst incomingAuthor = loopData.author;\nconst incomingChannelId = loopData.channelId;\nconst incomingId = loopData.messageId;\nconst liveChatId = loopData.liveChatId;\n\nconst memoryItems = $('🧠 Read Memory (History)').all(); \nconst userProfileItems = $input.all(); \n\n// 🛡️ ตรวจจับคำหยาบทันทีที่ข้อความเข้า\nconst isTrashMessage = TRASH_WORDS.some(word => incomingMsgLower.includes(word));\n\n// --- 🧠 USER MEMORY & RANK LOGIC ---\nlet userContext = \"[USER STATUS]: NEW VISITOR\";\nlet isNewUser = true;\nlet userRowNumber = -1;\nlet currentExp = 1;\nlet userRank = \"New\";\n\nif (userProfileItems.length > 0 && userProfileItems[0].json && userProfileItems[0].json.channel_id) {\n    const u = userProfileItems[0].json;\n    const dbRank = u.rank_system;\n    isNewUser = false;\n    userRowNumber = userProfileItems[0].rowNumber;\n    currentExp = parseInt(u.exp_points || 0) + 1;\n    \n    // 🚦 ระบบตัดเกรด (Priority Sorting)\n    if (MY_CREATOR_NAMES.includes(incomingAuthor)) {\n        userRank = \"GOD\";\n    } else if (dbRank === \"Shadow\" || dbRank === \"Sponsor\") {\n        userRank = dbRank; // ล็อคยศพิเศษจากชีต\n    } else if (currentExp >= 500) { \n        userRank = \"Legend\"; \n    } else if (currentExp >= 120) { \n        userRank = \"VIP\"; \n    } else if (currentExp >= 20) { \n        userRank = \"Regular\"; \n    } else if (currentExp >= 1) { \n        userRank = \"Rookie\"; \n    } else { \n        userRank = \"New\"; \n    }\n    \n    userContext = `[USER STATUS]: ${userRank} (Visits: ${currentExp}). AI Memory Note: ${u.ai_memory || \"-\"}`;\n} else {\n    // สำหรับ User ใหม่ที่ยังไม่มีใน DB\n    if (MY_CREATOR_NAMES.includes(incomingAuthor)) {\n        userRank = \"GOD\";\n        userContext = `[USER STATUS]: GOD (Creator)`;\n    }\n}\n\n// 🛡️ THE ULTIMATE OVERRIDE (พระเอกอยู่ตรงนี้)\n// ถ้าพิมพ์คำหยาบ และไม่ได้เป็น GOD ให้เปลี่ยนยศเป็น Shadow ทันที (พร้อมอัปเดตลง DB ให้ติดคุกถาวร)\nif (isTrashMessage && userRank !== \"GOD\") {\n    userRank = \"Shadow\";\n    userContext = \"[USER STATUS]: TOXIC/SPAM. Give them an intellectual rebuttal.\";\n}\n\nlet systemInstruction = PROMPT_DB[userRank] || PROMPT_DB[\"New\"];\n\n// ==========================================\n// 📢 แทรกระบบ \"คำสั่งลับผู้สร้าง\" (Event Trigger) \n// ==========================================\nif (userRank === \"GOD\" && incomingMsgLower.includes(\"!updatemusic\")) {\n    systemInstruction = `[MODE: ANNOUNCE_NEW_MUSIC_EVENT] \n    ⚠️ คำสั่งตรงจากบอส (ผู้สร้างสถานี): ตอนนี้บอสเพิ่งอัปเดตระบบและเพิ่มเพลง Lofi คุณภาพสูงชุดใหม่เข้ามาในคลังกลาง (All Day Lofi) สำเร็จแล้ว! \n    หน้าที่ของคุณ: ประกาศข่าวนี้ให้คนดูในไลฟ์แชทรู้ทันที \n    - ถ้าคุณคือ Neon: ให้ประกาศสไตล์อัปเดตแพตช์เสียง V.2 ทักทายคนดูแบบกวนๆ เท่ๆ สไตล์สายเทค \n    - ถ้าคุณคือ Noah: ให้ประกาศสไตล์อบอุ่น ชวนคนดูมาดื่มด่ำกับทำนองใหม่ๆ และอยู่ฟังเป็นเพื่อนกันยาวๆ \n    ห้ามหลุด Character เด็ดขาด และลงท้ายด้วยการชวนคนดูในช่องแชทคุยต่อ 1 คำถาม!`;\n}\n\n// ==========================================\n// 🔥 SMART PERSONA & TOPIC SELECTOR\n// ==========================================\nconst currentHour = new Date(new Date().toLocaleString(\"en-US\", { timeZone: \"Asia/Bangkok\" })).getHours();\nlet timeBasedPersona = Math.random() < ((currentHour >= 18 || currentHour < 6) ? 0.80 : 0.30) ? \"Noah\" : \"Neon\";\n\nlet topicReason = \"General Topic\";\nif (NEON_KEYWORDS.some(k => incomingMsgLower.includes(k))) { topicReason = \"Tech Topic\"; }\nelse if (NOAH_KEYWORDS.some(k => incomingMsgLower.includes(k))) { topicReason = \"Chill Topic\"; }\n\nlet selectedPersona = \"\";\nif (incomingMsgLower.includes(\"noah\") || incomingMsgLower.includes(\"พี่ชาย\")) { selectedPersona = \"Noah\"; }\nelse if (incomingMsgLower.includes(\"neon\") || incomingMsgLower.includes(\"น้อง\")) { selectedPersona = \"Neon\"; }\nelse if (topicReason === \"Tech Topic\") { selectedPersona = \"Neon\"; }\nelse if (topicReason === \"Chill Topic\") { selectedPersona = \"Noah\"; }\nelse {\n    let lastBotSpeaker = \"\";\n    if (memoryItems.length > 0) {\n        for (let i = memoryItems.length - 1; i >= Math.max(0, memoryItems.length - 5); i--) {\n            if (memoryItems[i].json && memoryItems[i].json.Responder && (memoryItems[i].json.Responder === \"Noah\" || memoryItems[i].json.Responder === \"Neon\")) {\n                lastBotSpeaker = memoryItems[i].json.Responder;\n                break; \n            }\n        }\n    }\n    selectedPersona = lastBotSpeaker !== \"\" ? lastBotSpeaker : timeBasedPersona;\n}\n\nlet historyText = \"\";\nif (memoryItems.length > 0) {\n    const historyStart = Math.max(0, memoryItems.length - HISTORY_LIMIT);\n    for (let i = historyStart; i < memoryItems.length; i++) {\n        if (memoryItems[i].json.Author && memoryItems[i].json.Message) {\n            historyText += `${memoryItems[i].json.Author}: ${memoryItems[i].json.Message}\\n`;\n        }\n    }\n}\nhistoryText += `${incomingAuthor}: ${incomingMsg} (LATEST)`;\n\nreturn [{\n  json: {\n    targetMessage: incomingMsg, targetAuthor: incomingAuthor, targetChannelId: incomingChannelId,\n    historyContext: historyText, userContext: userContext, selectedPersona: selectedPersona,\n    selectionReason: topicReason, liveChatId: liveChatId, messageId: incomingId,\n    isNewUser: isNewUser, userRowNumber: userRowNumber, newExp: currentExp, rank_system: userRank,\n    systemInstruction: systemInstruction\n  }\n}];"
       },
-      "id": "fd83dfef-0960-4544-9f60-570f69d05511",
+      "id": "77283ec3-3c84-48d7-be4e-47738cc7ff4c",
       "name": "🚦 State Machine Logic (v2)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -528,
-        688
+        2032,
+        912
       ]
     },
     {
@@ -831,13 +793,13 @@
         },
         "fallbackOutput": 2
       },
-      "id": "8442b211-7457-4853-bd79-b71758d1a873",
+      "id": "365510bf-d6c7-4a66-bbf7-36f9774ffdc0",
       "name": "🔀 The Router",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        -528,
-        176
+        2032,
+        400
       ]
     },
     {
@@ -851,10 +813,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        -160,
-        -144
+        2400,
+        80
       ],
-      "id": "eeb274f7-9252-46c3-ae55-781665d49cfc",
+      "id": "4335d286-9ae9-492b-8b0e-47e5a854b0f8",
       "name": "🤖 AI (Tech & Trade)"
     },
     {
@@ -868,10 +830,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        -160,
-        192
+        2400,
+        416
       ],
-      "id": "658dcaac-b098-498f-8930-88a583b0c45a",
+      "id": "dd52c0c7-d6f6-450e-bcef-c72dfba617ff",
       "name": "🤖 AI (Deep & Chill)"
     },
     {
@@ -885,10 +847,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        -144,
-        512
+        2416,
+        736
       ],
-      "id": "9f32bb01-e878-407e-bdb4-70bac28b2ebd",
+      "id": "30fd7217-04bb-4b9b-9d03-66652cff948e",
       "name": "🤖 AI (General)"
     },
     {
@@ -899,17 +861,11 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        -224,
-        32
+        2336,
+        256
       ],
-      "id": "8485e8de-b492-47c9-a166-6088d12c5d28",
-      "name": "OpenRouter Chat Model2",
-      "credentials": {
-        "openRouterApi": {
-          "id": "66mRXgESWbC1jEBG",
-          "name": "OpenRouter account"
-        }
-      }
+      "id": "8217a107-da66-4f13-a08e-7d2be39bd54f",
+      "name": "OpenRouter Chat Model2"
     },
     {
       "parameters": {
@@ -919,17 +875,11 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        -192,
-        688
+        2368,
+        912
       ],
-      "id": "7319d41d-50fd-4565-8b93-d2a4c2da54c6",
-      "name": "OpenRouter Chat Model4",
-      "credentials": {
-        "openRouterApi": {
-          "id": "66mRXgESWbC1jEBG",
-          "name": "OpenRouter account"
-        }
-      }
+      "id": "f7f6ecdf-6b30-4a55-9e8e-ca417e73f5dc",
+      "name": "OpenRouter Chat Model4"
     },
     {
       "parameters": {
@@ -939,27 +889,21 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        -240,
-        384
+        2320,
+        608
       ],
-      "id": "fc33b500-d3b7-4c8b-b9da-108581df58a4",
-      "name": "OpenRouter Chat Model3",
-      "credentials": {
-        "openRouterApi": {
-          "id": "66mRXgESWbC1jEBG",
-          "name": "OpenRouter account"
-        }
-      }
+      "id": "8af56f68-0cd1-4e78-a1de-7fdae9c90785",
+      "name": "OpenRouter Chat Model3"
     },
     {
       "parameters": {},
       "type": "@n8n/n8n-nodes-langchain.toolCalculator",
       "typeVersion": 1,
       "position": [
-        560,
-        368
+        3120,
+        592
       ],
-      "id": "283e3328-2395-4197-9404-bb4adb32ba8d",
+      "id": "c29ffcf2-1a1f-40db-af4e-e7cd75c23699",
       "name": "Calculator"
     },
     {
@@ -989,10 +933,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1520,
-        832
+        4080,
+        1056
       ],
-      "id": "032a4f9c-e2f5-4bc6-9ee2-7f193cbdd213",
+      "id": "dc131599-3032-4e6a-bc62-2dbeacb45f40",
       "name": "🚫 Check Shadow?"
     },
     {
@@ -1114,18 +1058,18 @@
         },
         "options": {}
       },
-      "id": "47871b89-eec2-4a3a-8dde-c624d5cdd848",
+      "id": "f52bae48-784f-4eff-895e-bbdccd2557a4",
       "name": "💾 Update Shadow Stats",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.3,
       "position": [
-        1536,
-        1088
+        4096,
+        1312
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "cO59luUKjwKNG0fY",
-          "name": "Google Sheets account"
+          "id": "fQpyVTbidsNSBeXI",
+          "name": "Bourneken os"
         }
       }
     },
@@ -1140,13 +1084,13 @@
           ]
         }
       },
-      "id": "c99a5c9a-402d-45b1-af01-39f0193d3eb6",
+      "id": "68a94a58-6198-417d-a102-a225087e81c4",
       "name": "⏱️ Heartbeat (1m)",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
-        -2096,
-        720
+        464,
+        944
       ]
     }
   ],
@@ -1561,18 +1505,20 @@
       ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
+    "binaryMode": "separate",
     "availableInMCP": false,
     "timeSavedMode": "fixed",
     "timezone": "Asia/Bangkok",
     "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "fb4d65fa-27be-48b1-83c4-9f2b425dde17",
+  "versionId": "e849438c-9332-4ba0-a2cb-7103ad1d9515",
   "meta": {
-    "instanceId": "03915bbc56804ec06e704c04a2a9522c55f1d139f61dc3f72ab4cce8d475b074"
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb8401fa5e168ec815f7040365e4ee6663f62cc5279011863901b4f0a60982c3"
   },
-  "id": "N16lmQQIPb36VrMj",
+  "id": "mPhoPulS0cridd9a",
   "tags": []
 }
